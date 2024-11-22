@@ -6,8 +6,15 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UserType {
-    ADMIN("funcionario"),
-    USER("cliente");
-    private String type;
+    Funcionario(1),
+    Cliente(2);
 
+    private int code;
+
+    public static UserType valueOf(int code){
+        for (UserType value : UserType.values()){
+            if(value.getCode() == code) return value;
+        }
+        throw new IllegalArgumentException("Invalid user type code");
+    }
 }

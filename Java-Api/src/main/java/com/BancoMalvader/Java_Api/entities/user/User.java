@@ -1,44 +1,57 @@
 package com.BancoMalvader.Java_Api.entities.user;
 
+import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
 
+
+@Entity
+@Table(name = "users")
+@Setter
 @Getter
-public abstract class User {
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    protected int id;
-
-    @Setter
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected Long id;
     protected String name;
-
-    @Setter
     protected String CPF;
-
-    @Setter
-    protected LocalDate bornDate;
-
-    @Setter
+    protected Instant bornDate;
     protected String phone;
-
-    @Setter
     protected String password;
+    protected Integer userType; // Enum para o tipo de usuário (FUNCIONARIO ou CLIENTE)
 
-    @Setter
-    protected UserType userType; // Enum para o tipo de usuário (FUNCIONARIO ou CLIENTE)
-
-    @Setter
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     protected Address address;
 
-    public User(String name, String CPF, LocalDate bornDate, String phone, String password, UserType userType, Address address) {
+
+    public User(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF) {
+        this.id = id;
         this.name = name;
-        this.CPF = CPF;
         this.bornDate = bornDate;
-        this.phone = phone;
         this.password = password;
-        this.userType = userType;
-        this.address = address;
+        setUserType(userType);
+        this.phone = phone;
+        this.CPF = CPF;
+    }
+
+    public UserType getUserType() {
+        return UserType.valueOf(userType);
+    }
+
+    public void setUserType(UserType userType) {
+        if (userType != null) this.userType = userType.getCode();
     }
 
     public abstract boolean login(String password);
@@ -47,8 +60,4 @@ public abstract class User {
 
     public abstract void register();
 
-    public String dataQuery() {
-        return "ID: " + id + ", Nome: " + name + ", CPF: " + CPF +
-                ", Data de Nascimento: " + bornDate + ", Telefone: " + phone;
-    }
 }

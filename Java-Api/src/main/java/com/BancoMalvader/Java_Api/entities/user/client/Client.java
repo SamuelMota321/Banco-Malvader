@@ -1,19 +1,33 @@
 package com.BancoMalvader.Java_Api.entities.user.client;
 
-import com.BancoMalvader.Java_Api.entities.user.Address;
 import com.BancoMalvader.Java_Api.entities.user.User;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDate;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
 
+
+@Entity
+@Table(name = "clientes")
+@Setter
 @Getter
-public class Client extends User {
+@NoArgsConstructor
+public class Client extends User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Client(String name, String CPF, LocalDate bornDate, String phone, String password, UserType userType, Address address) {
-        super(name, CPF, bornDate, phone, password, userType, address);
+    public Client(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, Long id1) {
+        super(id, name, bornDate, password, userType, phone, CPF);
+        this.id = id1;
     }
 
     @Override

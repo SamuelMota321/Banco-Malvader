@@ -1,26 +1,37 @@
 package com.BancoMalvader.Java_Api.entities.user.employee;
 
-import com.BancoMalvader.Java_Api.entities.account.Account;
-import com.BancoMalvader.Java_Api.entities.user.Address;
 import com.BancoMalvader.Java_Api.entities.user.User;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
-import com.BancoMalvader.Java_Api.entities.user.client.Client;
+import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
 
+@Entity
+@Table(name = "funcionarios")
+@NoArgsConstructor
 @Getter
 @Setter
-public class Employee extends User {
+@EqualsAndHashCode(of = "id", callSuper = false)
+public class Employee extends User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String employeeCode;
     private String job;
 
-    public Employee(String name, String CPF, LocalDate bornDate, String phone, String password, UserType userType, Address address, String employeeCode, String job) {
-        super(name, CPF, bornDate, phone, password, userType, address);
+    public Employee(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, String employeeCode, Long id1, String job) {
+        super(id, name, bornDate, password, userType, phone, CPF);
         this.employeeCode = employeeCode;
+        this.id = id1;
         this.job = job;
     }
 
@@ -40,37 +51,37 @@ public class Employee extends User {
         //Implemente a lógica aq
     }
 
-    public void openAccount(Account account) {
-        //implementação da lógica aqui
-    }
-
-    public void closeAccount(Account account) {
-        //implementação da lógica aqui
-    }
-
-    public Account queryAccountData(int accountNumber) {
-        //implementação da lógica aqui
-        return null;
-    }
-
-    public Client queryClientData(int idClient) {
-        //implementação da lógica aqui
-        return null;
-    }
-
-    public void alterAccoutData(Account account) {
-        //implementação da lógica aqui
-    }
-
-    public void alterClientData(Client client) {
-        //implementação da lógica aqui
-    }
-
-    public void registerEmployee(Employee employee) {
-        //implementação da lógica aqui
-    }
-
-    public void generateMovementReport() {
-        //implementação da lógica aqui
-    }
+//    public void openAccount(Account account) {
+//        //implementação da lógica aqui
+//    }
+//
+//    public void closeAccount(Account account) {
+//        //implementação da lógica aqui
+//    }
+//
+//    public Account queryAccountData(int accountNumber) {
+//        //implementação da lógica aqui
+//        return null;
+//    }
+//
+//    public Client queryClientData(int idClient) {
+//        //implementação da lógica aqui
+//        return null;
+//    }
+//
+//    public void alterAccoutData(Account account) {
+//        //implementação da lógica aqui
+//    }
+//
+//    public void alterClientData(Client client) {
+//        //implementação da lógica aqui
+//    }
+//
+//    public void registerEmployee(Employee employee) {
+//        //implementação da lógica aqui
+//    }
+//
+//    public void generateMovementReport() {
+//        //implementação da lógica aqui
+//    }
 }

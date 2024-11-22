@@ -1,4 +1,4 @@
-package com.BancoMalvader.Java_Api.entities.operations;
-
-public class Transaction {
-}
+//package com.BancoMalvader.Java_Api.entities.operations;
+//
+//public class Transaction {
+//}
