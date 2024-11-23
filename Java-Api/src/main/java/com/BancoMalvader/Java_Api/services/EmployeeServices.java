@@ -45,8 +45,7 @@ public class EmployeeServices {
 
     }
 
-    // Metodo de exemplo para abrir uma conta
-    public Account createAccountForClient(Long clientId, String accountType, Double initialBalance, String agency, Double limitt, Instant    maturity, Double yieldRate) {
+    public Account createAccountForClient(Long clientId, String accountType, Double initialBalance, String agency, Double limitt, Instant maturity, Double yieldRate) {
         // Verifica se o cliente existe
         Optional<Client> clientOptional = clientRepository.findById(clientId);
         if (!clientOptional.isPresent()) {
@@ -55,32 +54,41 @@ public class EmployeeServices {
 
         Client client = clientOptional.get();
         Account account;
-        // Gera um número de conta único
         Integer accountNumber = generateUniqueAccountNumber();
         if ("conta_corrente".equals(accountType)) {
             account = new Current(null, AccountType.Conta_corrente, initialBalance, accountNumber, agency, client, limitt, maturity); // Supondo que 'Current' seja uma subclasse de 'Account'
         } else {
             account = new Saving(null, AccountType.Conta_Poupanca, initialBalance, accountNumber, agency, client, yieldRate); // Supondo que 'Saving' seja uma subclasse de 'Account'
         }
-
-        // Salva a conta no repositório
         return accountRepository.save(account);
     }
 
-    // Metodo para gerar números únicos de conta (exemplo básico)
     private Integer generateUniqueAccountNumber() {
         Random random = new Random();
         int accountNumber;
         do {
-            accountNumber = 100000 + random.nextInt(900000); // Gera número de 6 dígitos
+            accountNumber = 100000 + random.nextInt(900000);
         } while (accountRepository.existsByAccountNumber(accountNumber));
         return accountNumber;
     }
 
+    public void deleteAccount(Long accountId) {
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (!accountOptional.isPresent()) {
+            throw new RuntimeException("Account not found");
+        }
+        Account account = accountOptional.get();
+        accountRepository.delete(account);
 
-    public void closeAccount(Account account) {
-        //implementação da lógica aqui
     }
 
+    public Account queryAccountData(int accountNumber) {
+        Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
+        return accountOptional.get();
+    }
 
+    public Client queryClientData(Long idClient) {
+        Optional<Client> clientOptional = clientRepository.findById(idClient);
+        return clientOptional.get();
+    }
 }

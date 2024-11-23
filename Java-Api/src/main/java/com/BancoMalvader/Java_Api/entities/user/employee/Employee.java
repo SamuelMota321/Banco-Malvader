@@ -37,15 +37,7 @@ public class Employee extends User implements Serializable {
     }
 
 
-//    public Account queryAccountData(int accountNumber) {
-//        //implementação da lógica aqui
-//        return null;
-//    }
-//
-//    public Client queryClientData(int idClient) {
-//        //implementação da lógica aqui
-//        return null;
-//    }
+
 //
 //    public void alterAccoutData(Account account) {
 //        //implementação da lógica aqui
