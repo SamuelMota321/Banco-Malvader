@@ -1,9 +1,9 @@
 package com.BancoMalvader.Java_Api.entities.user.employee;
 
+import com.BancoMalvader.Java_Api.entities.operations.Relatory;
 import com.BancoMalvader.Java_Api.entities.user.User;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,13 +11,14 @@ import lombok.Setter;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "funcionarios")
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id", callSuper = false)
 public class Employee extends User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -27,6 +28,9 @@ public class Employee extends User implements Serializable {
     private Long id;
     private String employeeCode;
     private String job;
+
+    @OneToMany(mappedBy = "employee")
+    private final Set<Relatory> relatory = new HashSet<>();
 
     public Employee(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, String employeeCode, Long id1, String job) {
         super(id, name, bornDate, password, userType, phone, CPF);

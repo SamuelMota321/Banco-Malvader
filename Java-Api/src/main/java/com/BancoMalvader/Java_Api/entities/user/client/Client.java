@@ -25,6 +25,7 @@ public class Client extends User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     public Client(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, Long id1) {
         super(id, name, bornDate, password, userType, phone, CPF);
         this.id = id1;

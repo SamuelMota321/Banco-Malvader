@@ -1,5 +1,6 @@
 package com.BancoMalvader.Java_Api.entities.user;
 
+import com.BancoMalvader.Java_Api.entities.account.Account;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,6 +35,9 @@ public abstract class User implements Serializable {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     protected Address address;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    protected Account account;
 
 
     public User(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF) {
