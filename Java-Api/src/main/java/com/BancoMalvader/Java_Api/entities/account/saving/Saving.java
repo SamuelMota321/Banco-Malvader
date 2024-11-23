@@ -2,6 +2,7 @@ package com.BancoMalvader.Java_Api.entities.account.saving;
 
 import com.BancoMalvader.Java_Api.entities.account.Account;
 import com.BancoMalvader.Java_Api.entities.account.AccountType;
+import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,8 +25,9 @@ public class Saving extends Account implements Serializable {
     private Long id;
     private Double yieldRate;
 
-    public Saving(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Long id1, Double yieldRate) {
-        super(id, accountType, balance, accountNumber, agency);
+
+    public Saving(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Client client, Long id1, Double yieldRate) {
+        super(id, accountType, balance, accountNumber, agency, client);
         this.id = id1;
         this.yieldRate = yieldRate;
     }

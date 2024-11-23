@@ -33,12 +33,8 @@ public abstract class User implements Serializable {
     protected String password;
     protected Integer userType; // Enum para o tipo de usuário (FUNCIONARIO ou CLIENTE)
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    protected Address address;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    protected Account account;
-
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // mappedBy indica que o lado "dono" é Address
+    private Address address;
 
     public User(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF) {
         this.id = id;
@@ -50,9 +46,9 @@ public abstract class User implements Serializable {
         this.CPF = CPF;
     }
 
-    public UserType getUserType() {
-        return UserType.valueOf(userType);
-    }
+        public UserType getUserType() {
+            return UserType.valueOf(userType);
+        }
 
     public void setUserType(UserType userType) {
         if (userType != null) this.userType = userType.getCode();

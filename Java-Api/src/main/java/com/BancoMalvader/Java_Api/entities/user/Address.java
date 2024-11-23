@@ -12,7 +12,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Address implements Serializable {
     @Serial
@@ -30,8 +29,19 @@ public class Address implements Serializable {
 
     @JsonIgnore
     @OneToOne
-    @MapsId
-    private User user;
+    @JoinColumn(name = "user_id")
+    private User user; // a unidade dependente leva a coluna no construtor
+
+    public Address(Long id, String zipCode, int houseNumber, String neighborhood, String state, User user, String city, String local) {
+        this.id = id;
+        this.zipCode = zipCode;
+        this.houseNumber = houseNumber;
+        this.neighborhood = neighborhood;
+        this.state = state;
+        this.user = user;
+        this.city = city;
+        this.local = local;
+    }
 
     public String toString() {
         return local + ", " + houseNumber + ", " + neighborhood + ", " + city + ", " + state + ", CEP: " + zipCode;

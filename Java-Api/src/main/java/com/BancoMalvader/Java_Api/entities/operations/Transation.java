@@ -26,19 +26,20 @@ public class Transation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private TransationType typeTransation;
+    private TransationType transationType;
     private Double transationValue;
     private Instant hourDate;
 
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "id_conta")
-    private Account account;
+    private Account account; // a relação dependente leva a coluna no construtor
 
-    public Transation(Long id, Instant hourDate, Double transationValue, TransationType typeTransation) {
+    public Transation(Long id, Instant hourDate, Double transationValue, TransationType transationType, Account account) {
         this.id = id;
         this.hourDate = hourDate;
         this.transationValue = transationValue;
-        this.typeTransation = typeTransation;
+        this.transationType = transationType;
+        this.account = account;
     }
 }

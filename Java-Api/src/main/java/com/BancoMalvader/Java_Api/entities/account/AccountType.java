@@ -1,6 +1,6 @@
 package com.BancoMalvader.Java_Api.entities.account;
 
- import lombok.AllArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

@@ -1,7 +1,9 @@
 package com.BancoMalvader.Java_Api.entities.user.client;
 
+import com.BancoMalvader.Java_Api.entities.account.Account;
 import com.BancoMalvader.Java_Api.entities.user.User;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +27,8 @@ public class Client extends User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private Account account; // a conta depende do cliente, por isso não deve aparecer no construtor
 
     public Client(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, Long id1) {
         super(id, name, bornDate, password, userType, phone, CPF);

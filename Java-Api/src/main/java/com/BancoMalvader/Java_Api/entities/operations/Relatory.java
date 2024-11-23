@@ -31,13 +31,14 @@ public class Relatory implements Serializable {
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "id_funcionario")
-    private Employee employee;
+    private Employee employee; // a relação dependente leva a coluna no construtor
 
-    public Relatory(Long id, String type, List<String> content, Instant dateGeneration) {
+    public Relatory(Long id, String type, List<String> content, Instant dateGeneration, Employee employee) {
         this.id = id;
         this.type = type;
         this.content = content;
         this.dateGeneration = dateGeneration;
+        this.employee = employee;
     }
 
     public void generateGeneralReport() {
