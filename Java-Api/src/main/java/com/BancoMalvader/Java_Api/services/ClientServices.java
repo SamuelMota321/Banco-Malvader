@@ -1,5 +1,6 @@
 package com.BancoMalvader.Java_Api.services;
 
+import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,4 +22,11 @@ public class ClientServices {
         Optional<Client> obj = repository.findById(id);
         return obj.get();
     }
+
+    public Client registerClient(Client client) {
+        client.setUserType(UserType.Cliente);
+        return repository.save(client);
+    }
+
+
 }

@@ -38,11 +38,11 @@ public abstract class User implements Serializable {
     public User(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, Address address) {
         this.id = id;
         this.name = name;
-        this.bornDate = bornDate;
-        this.password = password;
-        setUserType(userType);
-        this.phone = phone;
         this.CPF = CPF;
+        this.phone = phone;
+        this.password = password;
+        this.bornDate = bornDate;
+        setUserType(userType);
         this.address = address;
     }
 

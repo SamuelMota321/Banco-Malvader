@@ -19,9 +19,9 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "clientes")
-@Setter
-@Getter
 @NoArgsConstructor
+@Getter
+@Setter
 public class Client extends User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -29,7 +29,7 @@ public class Client extends User implements Serializable {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private Account account; // a conta depende do cliente, por isso não deve aparecer no construtor
 
-    public Client(Long id, String name, Instant bornDate, String password, Address address, UserType userType, String phone, String CPF) {
+    public Client(Long id, String name, String CPF, String phone, String password, UserType userType, Instant bornDate, Address address) {
         super(id, name, bornDate, password, userType, phone, CPF, address);
     }
 
