@@ -1,9 +1,12 @@
 package com.BancoMalvader.Java_Api.entities.user.employee;
 
 import com.BancoMalvader.Java_Api.entities.operations.Relatory;
+import com.BancoMalvader.Java_Api.entities.user.Address;
 import com.BancoMalvader.Java_Api.entities.user.User;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,38 +25,17 @@ import java.util.Set;
 public class Employee extends User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @OneToMany(mappedBy = "employee")
+    private final Set<Relatory> relatory = new HashSet<>();
     private String employeeCode;
     private String job;
 
-    @OneToMany(mappedBy = "employee")
-    private final Set<Relatory> relatory = new HashSet<>();
-
-    public Employee(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, String employeeCode, Long id1, String job) {
-        super(id, name, bornDate, password, userType, phone, CPF);
+    public Employee(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, String employeeCode, String job, Address address) {
+        super(id, name, bornDate, password, userType, phone, CPF, address);
         this.employeeCode = employeeCode;
-        this.id = id1;
         this.job = job;
     }
 
-    @Override
-    public boolean login(String password) {
-        //Implemente a lógica aq
-        return false;
-    }
-
-    @Override
-    public void logout() {
-        //Implemente a lógica aq
-    }
-
-    @Override
-    public void register() {
-        //Implemente a lógica aq
-    }
 
 //    public void openAccount(Account account) {
 //        //implementação da lógica aqui

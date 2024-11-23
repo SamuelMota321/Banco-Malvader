@@ -1,6 +1,5 @@
 package com.BancoMalvader.Java_Api.entities.user;
 
-import com.BancoMalvader.Java_Api.entities.account.Account;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -33,10 +32,10 @@ public abstract class User implements Serializable {
     protected String password;
     protected Integer userType; // Enum para o tipo de usuário (FUNCIONARIO ou CLIENTE)
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // mappedBy indica que o lado "dono" é Address
+    @OneToOne
     private Address address;
 
-    public User(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF) {
+    public User(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, Address address) {
         this.id = id;
         this.name = name;
         this.bornDate = bornDate;
@@ -44,20 +43,15 @@ public abstract class User implements Serializable {
         setUserType(userType);
         this.phone = phone;
         this.CPF = CPF;
+        this.address = address;
     }
 
-        public UserType getUserType() {
-            return UserType.valueOf(userType);
-        }
+    public UserType getUserType() {
+        return UserType.valueOf(userType);
+    }
 
     public void setUserType(UserType userType) {
         if (userType != null) this.userType = userType.getCode();
     }
-
-    public abstract boolean login(String password);
-
-    public abstract void logout();
-
-    public abstract void register();
 
 }

@@ -22,15 +22,11 @@ public class Current extends Account implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     private Double limitt;
     private Instant maturity;
 
-    public Current(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Client client, Long id1, Double limitt, Instant maturity) {
+    public Current(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Client client, Double limitt, Instant maturity) {
         super(id, accountType, balance, accountNumber, agency, client);
-        this.id = id1;
         this.limitt = limitt;
         this.maturity = maturity;
     }

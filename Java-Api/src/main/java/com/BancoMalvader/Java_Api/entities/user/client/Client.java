@@ -1,10 +1,13 @@
 package com.BancoMalvader.Java_Api.entities.user.client;
 
 import com.BancoMalvader.Java_Api.entities.account.Account;
+import com.BancoMalvader.Java_Api.entities.user.Address;
 import com.BancoMalvader.Java_Api.entities.user.User;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,33 +26,13 @@ public class Client extends User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private Account account; // a conta depende do cliente, por isso não deve aparecer no construtor
 
-    public Client(Long id, String name, Instant bornDate, String password, UserType userType, String phone, String CPF, Long id1) {
-        super(id, name, bornDate, password, userType, phone, CPF);
-        this.id = id1;
+    public Client(Long id, String name, Instant bornDate, String password, Address address, UserType userType, String phone, String CPF) {
+        super(id, name, bornDate, password, userType, phone, CPF, address);
     }
 
-    @Override
-    public boolean login(String password) {
-        return false;
-    }
-
-
-    @Override
-    public void logout() {
-
-    }
-
-    @Override
-    public void register() {
-
-    }
 
     public double queryBalance() {
         //implementação da lógica aqui

@@ -2,7 +2,10 @@ package com.BancoMalvader.Java_Api.entities.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -28,17 +31,15 @@ public class Address implements Serializable {
     private String state;
 
     @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user; // a unidade dependente leva a coluna no construtor
+    @OneToOne(mappedBy = "address", cascade = CascadeType.ALL)
+    private User user;
 
-    public Address(Long id, String zipCode, int houseNumber, String neighborhood, String state, User user, String city, String local) {
+    public Address(Long id, String zipCode, String local, int houseNumber, String neighborhood, String city, String state) {
         this.id = id;
         this.zipCode = zipCode;
         this.houseNumber = houseNumber;
         this.neighborhood = neighborhood;
         this.state = state;
-        this.user = user;
         this.city = city;
         this.local = local;
     }

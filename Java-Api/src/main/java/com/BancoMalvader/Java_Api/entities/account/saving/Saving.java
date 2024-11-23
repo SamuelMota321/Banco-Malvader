@@ -20,15 +20,11 @@ public class Saving extends Account implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     private Double yieldRate;
 
 
-    public Saving(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Client client, Long id1, Double yieldRate) {
+    public Saving(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Client client, Double yieldRate) {
         super(id, accountType, balance, accountNumber, agency, client);
-        this.id = id1;
         this.yieldRate = yieldRate;
     }
 
