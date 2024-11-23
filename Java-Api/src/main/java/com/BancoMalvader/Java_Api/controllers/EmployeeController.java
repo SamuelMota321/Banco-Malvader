@@ -1,9 +1,10 @@
 package com.BancoMalvader.Java_Api.controllers;
 
-import com.BancoMalvader.Java_Api.entities.user.Address;
+import com.BancoMalvader.Java_Api.entities.account.Account;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
-import com.BancoMalvader.Java_Api.repositories.AddressRepository;
+import com.BancoMalvader.Java_Api.schemas.AccountSchema;
 import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
+import com.BancoMalvader.Java_Api.services.BodyParserServices;
 import com.BancoMalvader.Java_Api.services.EmployeeServices;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,9 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeServices services;
+
     @Autowired
-    private AddressRepository addressRepository;
+    private BodyParserServices bodyParserServices;
 
     @GetMapping
     public ResponseEntity<List<Employee>> findAll() {
@@ -37,38 +39,25 @@ public class EmployeeController {
     @PostMapping
     public ResponseEntity<Employee> registerEmployee(@Valid @RequestBody EmployeeSchema schema) {
         // Converter o schema para entidade Employee
-        Employee employee = convertToEntity(schema);
-
+        Employee employee = bodyParserServices.convertToEntity(schema);
         Employee savedEmployee = services.registerEmployee(employee);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
     }
 
     // Metodo utilitário para converter o schema em entidade Employee
-    private Employee convertToEntity(EmployeeSchema schema) {
-        Address address = new Address(
-                null,
-                schema.getAddress().getZipCode(),
-                schema.getAddress().getLocal(),
-                schema.getAddress().getHouseNumber(),
-                schema.getAddress().getNeighborhood(),
-                schema.getAddress().getCity(),
-                schema.getAddress().getState()
-        );
-        addressRepository.save(address);
-
-        return new Employee(
-                null,
-                schema.getName(),
-                schema.getBornDate(),
-                schema.getPassword(),
-                null, // UserType será atribuído no Service
-                schema.getPhone(),
-                schema.getCpf(),
-                schema.getEmployeeCode(),
-                schema.getJob(),
-                address
+    @PostMapping("/criar-conta/{clientId}")
+    public Account createAccount(@PathVariable Long clientId, @RequestBody AccountSchema accountSchema) {
+        return services.createAccountForClient(
+                clientId,
+                accountSchema.getAccountType(),
+                accountSchema.getInitialBalance(),
+                accountSchema.getAgency(),
+                accountSchema.getLimitt(),
+                accountSchema.getMaturity(),
+                accountSchema.getYieldRate()
         );
     }
+
 
 
 }
