@@ -36,10 +36,6 @@ public class Employee extends User implements Serializable {
         this.job = job;
     }
 
-//    public void registerEmployee(Employee employee) {
-//        //implementação da lógica aqui
-//    }
-//
 //    public void generateMovementReport() {
 //        //implementação da lógica aqui
 //    }

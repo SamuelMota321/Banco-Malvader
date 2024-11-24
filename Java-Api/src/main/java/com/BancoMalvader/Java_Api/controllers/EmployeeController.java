@@ -5,7 +5,6 @@ import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
 import com.BancoMalvader.Java_Api.schemas.AccountSchema;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
-import com.BancoMalvader.Java_Api.schemas.ClientUpdateSchema;
 import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
 import com.BancoMalvader.Java_Api.services.BodyParserServices;
 import com.BancoMalvader.Java_Api.services.EmployeeServices;
@@ -100,10 +99,19 @@ public class EmployeeController {
     }
 
     @PatchMapping("/update-client/{clientId}")
-    public ResponseEntity<String> updateClient(@RequestBody ClientSchema clientSchema, @PathVariable Long clientId){
-        services.alterClientData(clientId,clientSchema);
+    public ResponseEntity<String> updateClient(@RequestBody ClientSchema clientSchema, @PathVariable Long clientId) {
+        services.alterClientData(clientId, clientSchema);
         return ResponseEntity.ok("Cliente atualizado com sucesso!");
     }
 
+    @PostMapping("/register/{employeeId}/{password}")
+    public ResponseEntity<Employee> employeeRegisterEmployee(@Valid @RequestBody EmployeeSchema schema, @PathVariable Long employeeId, @PathVariable String password) {
+        Employee employee = bodyParserServices.convertToEntity(schema);
+        Employee savedEmployee = services.employeeRegisterEmployee(employee, employeeId, password);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
+
+    }
+
 }
+
 

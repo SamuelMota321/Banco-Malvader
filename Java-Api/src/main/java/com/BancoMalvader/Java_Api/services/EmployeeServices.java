@@ -48,6 +48,29 @@ public class EmployeeServices {
     @PersistenceContext
     private EntityManager entityManager;
 
+    private static Address getAddress(ClientSchema schema, Client client) {
+        Address address = client.getAddress();
+
+        if (address.getZipCode() != null)
+            address.setZipCode(schema.getAddress().getZipCode());
+
+        if (address.getLocal() != null)
+            address.setLocal(schema.getAddress().getLocal());
+
+        if (address.getHouseNumber() != null)
+            address.setHouseNumber(schema.getAddress().getHouseNumber());
+
+        if (address.getNeighborhood() != null)
+            address.setNeighborhood(schema.getAddress().getNeighborhood());
+
+        if (address.getCity() != null)
+            address.setCity(schema.getAddress().getCity());
+
+        if (address.getState() != null)
+            address.setState(schema.getAddress().getState());
+        return address;
+    }
+
     public List<Employee> findAll() {
         return employeeRepository.findAll();
     }
@@ -129,7 +152,6 @@ public class EmployeeServices {
         return clientOptional.get();
     }
 
-
     public void alterAccountData(AccountSchema schema, int accountNumber) {
         Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
         Account account = accountOptional.get();
@@ -170,7 +192,6 @@ public class EmployeeServices {
         savingRepository.save(saving);
     }
 
-
     public void alterClientData(Long clientId, ClientSchema schema) {
         Optional<Client> optionalClient = clientRepository.findById(clientId);
         Client client = optionalClient.orElseThrow(() -> new EntityNotFoundException("Cliente com ID " + clientId + " não encontrado."));
@@ -197,27 +218,16 @@ public class EmployeeServices {
         clientRepository.save(client);
     }
 
-    private static Address getAddress(ClientSchema schema, Client client) {
-        Address address = client.getAddress();
+    public Employee employeeRegisterEmployee(Employee newEmployee, Long employeeId, String password) {
+        Optional<Employee> employeeOptional = employeeRepository.findById(employeeId);
+        Employee employee = employeeOptional.get();
+        if (employee.getPassword().equals(password)) {
+            newEmployee.setUserType(UserType.Funcionario);
+            return employeeRepository.save(newEmployee);
+        } else{
+            throw new IllegalArgumentException("Senha incorreta");
+        }
 
-        if (address.getZipCode() != null)
-            address.setZipCode(schema.getAddress().getZipCode());
-
-        if (address.getLocal() != null)
-            address.setLocal(schema.getAddress().getLocal());
-
-        if (address.getHouseNumber() != null)
-            address.setHouseNumber(schema.getAddress().getHouseNumber());
-
-        if (address.getNeighborhood() != null)
-            address.setNeighborhood(schema.getAddress().getNeighborhood());
-
-        if (address.getCity() != null)
-            address.setCity(schema.getAddress().getCity());
-
-        if (address.getState() != null)
-            address.setState(schema.getAddress().getState());
-        return address;
     }
 
 
