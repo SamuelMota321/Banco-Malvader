@@ -36,9 +36,9 @@ public abstract class Account implements Serializable {
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id")
-    private Client client; // a unidade mais relacionada leva a coluna no construtor
+    private Client client;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", cascade = CascadeType.REMOVE)
     private final Set<Transation> transations = new HashSet<>();
 
     public Account(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Client client) {

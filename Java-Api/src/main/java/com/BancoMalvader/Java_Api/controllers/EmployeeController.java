@@ -48,14 +48,25 @@ public class EmployeeController {
     // Metodo utilitário para converter o schema em entidade Employee
     @PostMapping("/criar-conta/{clientId}")
     public Account createAccount(@PathVariable Long clientId, @RequestBody AccountSchema accountSchema) {
-        return services.createAccountForClient(clientId, accountSchema.getAccountType(), accountSchema.getInitialBalance(), accountSchema.getAgency(), accountSchema.getLimitt(), accountSchema.getMaturity(), accountSchema.getYieldRate());
+        return services.createAccountForClient(
+                clientId,
+                accountSchema.getAccountType(),
+                accountSchema.getInitialBalance(),
+                accountSchema.getAgency(),
+                accountSchema.getLimitt(),
+                accountSchema.getMaturity(),
+                accountSchema.getYieldRate());
     }
 
     @DeleteMapping("/delete/{accountId}")
-    public void deleteAccount(@PathVariable Long accountId) {
-        services.deleteAccount(accountId);
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long accountId) {
+        try {
+            services.deleteAccount(accountId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
-
 
     @GetMapping("/query-account/{accountNumber}")
     public ResponseEntity<Account> queryAccount(@PathVariable int accountNumber) {
@@ -66,7 +77,10 @@ public class EmployeeController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-    } @GetMapping("/query-client/{clientId}")
+    }
+
+
+    @GetMapping("/query-client/{clientId}")
     public ResponseEntity<Client> queryClientData(@PathVariable Long clientId) {
         try {
             Client client = services.queryClientData(clientId);
@@ -75,6 +89,12 @@ public class EmployeeController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+    }
+
+    @PatchMapping("/update-account/{accountNumber}")
+    public ResponseEntity<Void> updateAccount(@RequestBody AccountSchema schema, @PathVariable int accountNumber) {
+        services.alterAccountData(schema, accountNumber);
+        return ResponseEntity.ok().build();
     }
 }
 

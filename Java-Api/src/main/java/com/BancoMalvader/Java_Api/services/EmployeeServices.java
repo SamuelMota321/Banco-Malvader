@@ -7,9 +7,10 @@ import com.BancoMalvader.Java_Api.entities.account.saving.Saving;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
-import com.BancoMalvader.Java_Api.repositories.AccountRepository;
-import com.BancoMalvader.Java_Api.repositories.ClientRepository;
-import com.BancoMalvader.Java_Api.repositories.EmployeeRepository;
+import com.BancoMalvader.Java_Api.repositories.*;
+import com.BancoMalvader.Java_Api.schemas.AccountSchema;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,10 @@ public class EmployeeServices {
 
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private CurrentRepository currentRepository;
+    @Autowired
+    private SavingRepository savingRepository;
 
     @Autowired
     private ClientRepository clientRepository;
@@ -72,15 +77,16 @@ public class EmployeeServices {
         return accountNumber;
     }
 
+    @Transactional
     public void deleteAccount(Long accountId) {
-        Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            throw new RuntimeException("Account not found");
-        }
-        Account account = accountOptional.get();
-        accountRepository.delete(account);
+        // Verifica se a conta existe
+        Current current = currentRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Conta com ID " + accountId + " não encontrada."));
 
+        currentRepository.delete(current);
     }
+
+
 
     public Account queryAccountData(int accountNumber) {
         Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
@@ -91,4 +97,32 @@ public class EmployeeServices {
         Optional<Client> clientOptional = clientRepository.findById(idClient);
         return clientOptional.get();
     }
+
+
+    public void alterAccountData(AccountSchema schema, int accountNumber) {
+        if ("conta_corrente".equals(schema.getAccountType())) {
+            Optional<Current> currentOptional = currentRepository.findByAccountNumber(accountNumber);
+            Current current = currentOptional.get();
+            current.setAccountType(AccountType.Conta_corrente);
+            current.setBalance(schema.getInitialBalance());
+            current.setLimitt(schema.getLimitt());
+            current.setMaturity(schema.getMaturity());
+            currentRepository.save(current);
+
+        } else {
+            Optional<Saving> savingOptional = savingRepository.findByAccountNumber(accountNumber);
+            Saving saving = savingOptional.get();
+            saving.setAccountType(AccountType.Conta_Poupanca);
+            saving.setBalance(schema.getInitialBalance());
+            saving.setYieldRate(schema.getLimitt());
+            savingRepository.save(saving);
+        }
+    }
+
+    public void alterClientData(Client client) {
+
+    }
+
+
+
 }

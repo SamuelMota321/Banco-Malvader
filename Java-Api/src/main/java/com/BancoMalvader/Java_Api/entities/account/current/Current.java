@@ -25,6 +25,7 @@ public class Current extends Account implements Serializable {
     private Double limitt;
     private Instant maturity;
 
+
     public Current(Long id, AccountType accountType, Double balance, Integer accountNumber, String agency, Client client, Double limitt, Instant maturity) {
         super(id, accountType, balance, accountNumber, agency, client);
         this.limitt = limitt;
