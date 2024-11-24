@@ -4,6 +4,8 @@ import com.BancoMalvader.Java_Api.entities.account.Account;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
 import com.BancoMalvader.Java_Api.schemas.AccountSchema;
+import com.BancoMalvader.Java_Api.schemas.ClientSchema;
+import com.BancoMalvader.Java_Api.schemas.ClientUpdateSchema;
 import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
 import com.BancoMalvader.Java_Api.services.BodyParserServices;
 import com.BancoMalvader.Java_Api.services.EmployeeServices;
@@ -79,7 +81,6 @@ public class EmployeeController {
         }
     }
 
-
     @GetMapping("/query-client/{clientId}")
     public ResponseEntity<Client> queryClientData(@PathVariable Long clientId) {
         try {
@@ -92,9 +93,17 @@ public class EmployeeController {
     }
 
     @PatchMapping("/update-account/{accountNumber}")
-    public ResponseEntity<Void> updateAccount(@RequestBody AccountSchema schema, @PathVariable int accountNumber) {
+    public ResponseEntity<String> updateAccount(@RequestBody AccountSchema schema, @PathVariable int accountNumber) {
         services.alterAccountData(schema, accountNumber);
-        return ResponseEntity.ok().build();
+        String successMessage = "Conta de número " + accountNumber + " atualizada com sucesso!";
+        return ResponseEntity.ok(successMessage);
     }
+
+    @PatchMapping("/update-client/{clientId}")
+    public ResponseEntity<String> updateClient(@RequestBody ClientSchema clientSchema, @PathVariable Long clientId){
+        services.alterClientData(clientId,clientSchema);
+        return ResponseEntity.ok("Cliente atualizado com sucesso!");
+    }
+
 }
 

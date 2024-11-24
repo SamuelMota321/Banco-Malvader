@@ -12,10 +12,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Table(name = "conta_poupanca")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
 public class Saving extends Account implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

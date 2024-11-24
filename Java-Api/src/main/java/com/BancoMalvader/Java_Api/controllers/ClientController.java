@@ -42,9 +42,7 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<Client> registerClient(@Valid @RequestBody ClientSchema schema) {
-        // Converter o schema para entidade Client
         Client client = bodyParserServices.convertToEntity(schema);
-
         Client savedClient = services.registerClient(client);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedClient);
     }

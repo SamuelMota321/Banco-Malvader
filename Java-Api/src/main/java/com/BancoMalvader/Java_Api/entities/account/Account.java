@@ -15,18 +15,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "conta")
+//@Table(name = "conta")
 @NoArgsConstructor
 @Setter
 @Getter
 @EqualsAndHashCode(of = "id")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Account implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     protected Long id;
     protected String agency;
     protected Double balance;

@@ -25,7 +25,7 @@ public class Address implements Serializable {
     private Long id;
     private String zipCode;
     private String local;
-    private int houseNumber;
+    private Integer houseNumber;
     private String neighborhood;
     private String city;
     private String state;
@@ -34,7 +34,7 @@ public class Address implements Serializable {
     @OneToOne(mappedBy = "address", cascade = CascadeType.ALL)
     private User user;
 
-    public Address(Long id, String zipCode, String local, int houseNumber, String neighborhood, String city, String state) {
+    public Address(Long id, String zipCode, String local, Integer houseNumber, String neighborhood, String city, String state) {
         this.id = id;
         this.zipCode = zipCode;
         this.houseNumber = houseNumber;
