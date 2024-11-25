@@ -10,10 +10,12 @@ import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.repositories.AccountRepository;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.repositories.TransationRepository;
+import com.BancoMalvader.Java_Api.schemas.TransferencySchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -108,7 +110,6 @@ public class ClientServices {
             if (client.getAccount() != null) {
                 Account account = client.getAccount();
                 if (account.getAccountType() == AccountType.Conta_corrente) {
-                    Current current = (Current) account;
                     return ((Current) account).getLimitt();
                 } else {
                     return null;
@@ -116,5 +117,31 @@ public class ClientServices {
             }
         }
         return null;
+
     }
+
+    public void transferency(Long clientId, TransferencySchema schema) {
+        Optional<Client> clientOptional = clientRepository.findById(clientId);
+        Optional<Account> accountOptional = accountRepository.findByAccountNumber(schema.getAccountNumber());
+        if (clientOptional.isPresent()) {
+            Client client = clientOptional.get();
+            if (client.getAccount() != null) {
+                Account account1 = client.getAccount();
+                if (accountOptional.isPresent()) {
+                    Account account2 = accountOptional.get();
+                    Instant hour = Instant.now();
+                    Transation transation = new Transation(null, hour, schema.getValue(), TransationType.Transferencia, account1);
+                    double atualBalanceAccount1 = account1.getBalance();
+                    double setBalanceAccount1 = atualBalanceAccount1 - schema.getValue();
+                    double atualBalanceAccount2 = account2.getBalance();
+                    double setBalanceAccount2 = atualBalanceAccount2 + schema.getValue();
+                    account1.setBalance(setBalanceAccount1);
+                    account2.setBalance(setBalanceAccount2);
+                    transationRepository.save(transation);
+                    accountRepository.saveAll(Arrays.asList(account1, account2));
+                }
+            }
+        }
+    }
+
 }

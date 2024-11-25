@@ -1,13 +1,21 @@
 package com.BancoMalvader.Java_Api.services;
 
+import com.BancoMalvader.Java_Api.entities.account.Account;
+import com.BancoMalvader.Java_Api.entities.operations.Transation;
+import com.BancoMalvader.Java_Api.entities.operations.TransationType;
 import com.BancoMalvader.Java_Api.entities.user.Address;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
 import com.BancoMalvader.Java_Api.repositories.AddressRepository;
+import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
 import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
+import com.BancoMalvader.Java_Api.schemas.TransferencySchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.Optional;
 
 @Service
 public class BodyParserServices {
@@ -15,6 +23,9 @@ public class BodyParserServices {
 
     @Autowired
     private AddressRepository addressRepository;
+
+    @Autowired
+    private ClientRepository clientRepository;
     public  Employee convertToEntity(EmployeeSchema schema) {
         Address address = new Address(
                 null,
@@ -65,6 +76,5 @@ public class BodyParserServices {
                 address
         );
     }
-
 
 }

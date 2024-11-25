@@ -6,6 +6,7 @@ import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.repositories.AddressRepository;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
+import com.BancoMalvader.Java_Api.schemas.TransferencySchema;
 import com.BancoMalvader.Java_Api.services.BodyParserServices;
 import com.BancoMalvader.Java_Api.services.ClientServices;
 import jakarta.validation.Valid;
@@ -93,7 +94,7 @@ public class ClientController {
         if (optionalClient.isPresent()) {
             Account account = optionalClient.get().getAccount();
             if (account != null) {
-                if (value < account.getBalance()) {
+                if (value <= account.getBalance()) {
                     account = services.withdraw(clientId, value);
                     message = "O seu saldo agora é igual a: " + account.getBalance();
                     return ResponseEntity.status(HttpStatus.OK).body(message);
@@ -159,6 +160,33 @@ public class ClientController {
             message = "Cliente não encontrado";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", message));
         }
+    }
+
+    @PostMapping("/transferency/{clientId}")
+    public ResponseEntity<?> transferency(@PathVariable Long clientId, @RequestBody TransferencySchema schema) {
+        Optional<Client> optionalClient = clientRepository.findById(clientId);
+        String message;
+        if (optionalClient.isPresent()) {
+            Account account = optionalClient.get().getAccount();
+            if (account != null) {
+                if (schema.getValue() <= account.getBalance()) {
+                    services.transferency(clientId, schema);
+                    message = "A transferencia de " + schema.getValue() + " para a conta " + schema.getAccountNumber() + " foi efetuada com sucesso";
+                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of("Transferencia: ", message));
+                } else {
+                    message = "O valor na conta não é suficiente para efetuar a transferencia";
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", message));
+                }
+            } else {
+                message = "Conta não encontrada";
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", message));
+            }
+
+        } else {
+            message = "Cliente não encontrado";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", message));
+        }
+
     }
 }
 
