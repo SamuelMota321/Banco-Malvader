@@ -30,9 +30,4 @@ public class Current extends Account implements Serializable {
         this.limitt = limitt;
         this.maturity = maturity;
     }
-
-    public double queryLimit() {
-        // implementação da lógica aqui
-        return 0;
-    }
 }

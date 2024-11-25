@@ -34,27 +34,5 @@ public class Client extends User implements Serializable {
     }
 
 
-    public double queryBalance() {
-        //implementação da lógica aqui
-        return 0;
-    }
 
-    public void deposit(double value) {
-        //implementação da lógica aqui
-    }
-
-    public boolean withdraw(double value) {
-        //implementação da lógica aqui
-        return false;
-    }
-
-    public String queryExtract() {
-        //implementação da lógica aqui
-        return "";
-    }
-
-    public double queryLimit() {
-        //implementação da lógica aqui
-        return 0;
-    }
 }

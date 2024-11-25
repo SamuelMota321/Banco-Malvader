@@ -30,7 +30,6 @@ public class Transation implements Serializable {
     private Double transationValue;
     private Instant hourDate;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "id_conta")
     private Account account; // a relação dependente leva a coluna no construtor

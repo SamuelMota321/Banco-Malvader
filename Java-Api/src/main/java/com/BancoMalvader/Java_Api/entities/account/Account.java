@@ -38,6 +38,7 @@ public abstract class Account implements Serializable {
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.REMOVE)
     private final Set<Transation> transations = new HashSet<>();
 
@@ -58,18 +59,4 @@ public abstract class Account implements Serializable {
         if (accountType != null) this.accountType = accountType.getCode();
     }
 
-
-    public void deposit(double valor) {
-        // implementação da lógica aqui
-    }
-
-    public boolean withdraw(double valor) {
-        // implementação da lógica aqui
-        return false;
-    }
-
-    public double queryBalance() {
-        // implementação da lógica aqui
-        return 0;
-    }
 }

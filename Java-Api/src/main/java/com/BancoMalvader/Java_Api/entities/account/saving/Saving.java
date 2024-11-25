@@ -3,7 +3,8 @@ package com.BancoMalvader.Java_Api.entities.account.saving;
 import com.BancoMalvader.Java_Api.entities.account.Account;
 import com.BancoMalvader.Java_Api.entities.account.AccountType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,10 +28,4 @@ public class Saving extends Account implements Serializable {
         super(id, accountType, balance, accountNumber, agency, client);
         this.yieldRate = yieldRate;
     }
-
-    public double calculateYield() {
-        //implementação da lógica aqui
-        return 0;
-    }
-
 }
