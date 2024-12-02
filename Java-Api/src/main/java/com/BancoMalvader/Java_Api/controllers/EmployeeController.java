@@ -1,8 +1,11 @@
 package com.BancoMalvader.Java_Api.controllers;
 
 import com.BancoMalvader.Java_Api.entities.account.Account;
+import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
+import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
+import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
 import com.BancoMalvader.Java_Api.schemas.AccountSchema;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
 import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
@@ -40,9 +43,12 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity<Employee> registerEmployee(@Valid @RequestBody EmployeeSchema schema) {
-        // Converter o schema para entidade Employee
-        Employee employee = bodyParserServices.convertToEntity(schema);
-        Employee savedEmployee = services.registerEmployee(employee);
+        System.out.println(schema.getAddress());
+        AddressResquestDTO addressResquestDTO = new AddressResquestDTO(schema.getAddress().getZipCode(), schema.getAddress().getLocal(), schema.getAddress().getHouseNumber(), schema.getAddress().getNeighborhood(), schema.getAddress().getCity(), schema.getAddress().getState());
+        EmployerRequestDTO employerRequestDTO = new EmployerRequestDTO(schema.getName(), schema.getCpf(), schema.getPhone(), schema.getPassword(), schema.getJob(), schema.getBornDate(), schema.getEmployeeCode());
+
+        Employee savedEmployee = services.registerEmployee(addressResquestDTO, employerRequestDTO);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
     }
 

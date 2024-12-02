@@ -5,9 +5,11 @@ import com.BancoMalvader.Java_Api.entities.account.AccountType;
 import com.BancoMalvader.Java_Api.entities.account.current.Current;
 import com.BancoMalvader.Java_Api.entities.account.saving.Saving;
 import com.BancoMalvader.Java_Api.entities.user.Address;
+import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
+import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
 import com.BancoMalvader.Java_Api.repositories.*;
 import com.BancoMalvader.Java_Api.schemas.AccountSchema;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
@@ -80,10 +82,50 @@ public class EmployeeServices {
         return obj.get();
     }
 
-    public Employee registerEmployee(Employee employee) {
-        employee.setUserType(UserType.Funcionario);
-        return employeeRepository.save(employee);
 
+    private Address instantiateAddress(AddressResquestDTO dataAddress){
+        Address address = new Address();
+
+        address.setZipCode(dataAddress.zipCode());
+        address.setLocal(dataAddress.local());
+        address.setHouseNumber(dataAddress.houseNumber());
+        address.setCity(dataAddress.city());
+        address.setNeighborhood(dataAddress.neighborhood());
+        address.setState(dataAddress.state());
+
+        System.out.println(address);
+
+
+        return address;
+
+    }
+
+    private Employee instantiateEmployee(EmployerRequestDTO dataEmployer, Address address){
+        Employee employee = new Employee();
+
+        employee.setName(dataEmployer.nome());
+        employee.setBornDate(dataEmployer.bornDate());
+        employee.setPassword(dataEmployer.password());
+        employee.setUserType(UserType.Funcionario);
+        employee.setPhone(dataEmployer.phone());
+        employee.setCPF(dataEmployer.cpf());
+        employee.setAddress(address);
+        employee.setJob(dataEmployer.job());
+        employee.setEmployeeCode(dataEmployer.employerCode());
+
+        return employee;
+    }
+
+    public Employee registerEmployee(AddressResquestDTO dataAddress, EmployerRequestDTO dataEmployer) {
+        Address address = instantiateAddress(dataAddress);
+
+        addressRepository.save(address);
+
+        Employee employee = instantiateEmployee(dataEmployer, address);
+
+        employeeRepository.save(employee);
+
+        return employee;
     }
 
     public Account createAccountForClient(Long clientId, String accountType, Double initialBalance, String agency, Double limitt, Instant maturity, Double yieldRate) {

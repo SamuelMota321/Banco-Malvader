@@ -4,6 +4,7 @@ import com.BancoMalvader.Java_Api.entities.operations.Relatory;
 import com.BancoMalvader.Java_Api.entities.user.Address;
 import com.BancoMalvader.Java_Api.entities.user.User;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
+import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -35,6 +36,9 @@ public class Employee extends User implements Serializable {
         this.employeeCode = employeeCode;
         this.job = job;
     }
+
+
+
 
 //    public void generateMovementReport() {
 //        //implementação da lógica aqui
