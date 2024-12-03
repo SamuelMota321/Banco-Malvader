@@ -1,8 +1,8 @@
 package com.BancoMalvader.Java_Api.controllers;
 
 import com.BancoMalvader.Java_Api.entities.account.Account;
+import com.BancoMalvader.Java_Api.entities.account.AccountRequestDTO;
 import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
-import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
 import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
@@ -53,15 +53,10 @@ public class EmployeeController {
 
     // Metodo utilitário para converter o schema em entidade Employee
     @PostMapping("/criar-conta/{clientId}")
-    public Account createAccount(@PathVariable Long clientId, @RequestBody AccountSchema accountSchema) {
-        return services.createAccountForClient(
-                clientId,
-                accountSchema.getAccountType(),
-                accountSchema.getInitialBalance(),
-                accountSchema.getAgency(),
-                accountSchema.getLimitt(),
-                accountSchema.getMaturity(),
-                accountSchema.getYieldRate());
+    public ResponseEntity<?> createAccount(@PathVariable Long clientId, @RequestBody AccountSchema schema) {
+        AccountRequestDTO accountRequestDTO = new AccountRequestDTO(schema.getAgency(), schema.getInitialBalance(), schema.getAccountType(), schema.getYieldRate(), schema.getLimitt(), schema.getMaturity());
+        Account account = services.createAccountForClient(clientId,accountRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
 
     @DeleteMapping("/delete/{accountId}")
