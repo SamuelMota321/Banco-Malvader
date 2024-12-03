@@ -2,7 +2,9 @@ package com.BancoMalvader.Java_Api.controllers;
 
 import com.BancoMalvader.Java_Api.entities.account.Account;
 import com.BancoMalvader.Java_Api.entities.operations.Transation;
+import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
+import com.BancoMalvader.Java_Api.entities.user.client.ClientRequestDTO;
 import com.BancoMalvader.Java_Api.repositories.AddressRepository;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
@@ -49,8 +51,11 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<Client> registerClient(@Valid @RequestBody ClientSchema schema) {
-        Client client = bodyParserServices.convertToEntity(schema);
-        Client savedClient = services.registerClient(client);
+        AddressResquestDTO addressResquestDTO = new AddressResquestDTO(schema.getAddress().getZipCode(), schema.getAddress().getLocal(), schema.getAddress().getHouseNumber(), schema.getAddress().getNeighborhood(), schema.getAddress().getCity(), schema.getAddress().getState());
+        ClientRequestDTO clientRequestDTO = new ClientRequestDTO(schema.getName(), schema.getCpf(), schema.getPhone(), schema.getPassword(), schema.getBornDate());
+
+        Client savedClient = services.registerClient(clientRequestDTO, addressResquestDTO);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedClient);
     }
 

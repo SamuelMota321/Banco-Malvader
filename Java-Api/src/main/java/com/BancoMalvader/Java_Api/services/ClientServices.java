@@ -5,9 +5,14 @@ import com.BancoMalvader.Java_Api.entities.account.AccountType;
 import com.BancoMalvader.Java_Api.entities.account.current.Current;
 import com.BancoMalvader.Java_Api.entities.operations.Transation;
 import com.BancoMalvader.Java_Api.entities.operations.TransationType;
+import com.BancoMalvader.Java_Api.entities.user.Address;
+import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
+import com.BancoMalvader.Java_Api.entities.user.client.ClientRequestDTO;
+import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
 import com.BancoMalvader.Java_Api.repositories.AccountRepository;
+import com.BancoMalvader.Java_Api.repositories.AddressRepository;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.repositories.TransationRepository;
 import com.BancoMalvader.Java_Api.schemas.TransferencySchema;
@@ -28,6 +33,24 @@ public class ClientServices {
     private AccountRepository accountRepository;
     @Autowired
     private TransationRepository transationRepository;
+    @Autowired
+    private UserServices userServices;
+    @Autowired
+    private AddressRepository addressRepository;
+
+    private Client instantiateClient(ClientRequestDTO dataClient, Address address) {
+        Client client = new Client();
+
+        client.setName(dataClient.name());
+        client.setBornDate(dataClient.bornDate());
+        client.setPassword(dataClient.password());
+        client.setUserType(UserType.Cliente);
+        client.setPhone(dataClient.phone());
+        client.setCPF(dataClient.CPF());
+        client.setAddress(address);
+
+        return client;
+    }
 
     public List<Client> findAll() {
         return clientRepository.findAll();
@@ -38,9 +61,12 @@ public class ClientServices {
         return obj.get();
     }
 
-    public Client registerClient(Client client) {
-        client.setUserType(UserType.Cliente);
-        return clientRepository.save(client);
+    public Client registerClient(ClientRequestDTO dataClient, AddressResquestDTO dataAddress) {
+        Address address = userServices.instantiateAddress(dataAddress);
+        addressRepository.save(address);
+        Client client = instantiateClient(dataClient, address);
+        clientRepository.save(client);
+        return client;
     }
 
     public Double queryBalance(Long clientId) {

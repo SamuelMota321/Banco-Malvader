@@ -43,7 +43,6 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity<Employee> registerEmployee(@Valid @RequestBody EmployeeSchema schema) {
-        System.out.println(schema.getAddress());
         AddressResquestDTO addressResquestDTO = new AddressResquestDTO(schema.getAddress().getZipCode(), schema.getAddress().getLocal(), schema.getAddress().getHouseNumber(), schema.getAddress().getNeighborhood(), schema.getAddress().getCity(), schema.getAddress().getState());
         EmployerRequestDTO employerRequestDTO = new EmployerRequestDTO(schema.getName(), schema.getCpf(), schema.getPhone(), schema.getPassword(), schema.getJob(), schema.getBornDate(), schema.getEmployeeCode());
 

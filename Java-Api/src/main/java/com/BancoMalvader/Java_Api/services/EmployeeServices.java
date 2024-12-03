@@ -46,6 +46,9 @@ public class EmployeeServices {
     @Autowired
     private AddressRepository addressRepository;
 
+    @Autowired
+    private UserServices userServices;
+
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -83,23 +86,6 @@ public class EmployeeServices {
     }
 
 
-    private Address instantiateAddress(AddressResquestDTO dataAddress){
-        Address address = new Address();
-
-        address.setZipCode(dataAddress.zipCode());
-        address.setLocal(dataAddress.local());
-        address.setHouseNumber(dataAddress.houseNumber());
-        address.setCity(dataAddress.city());
-        address.setNeighborhood(dataAddress.neighborhood());
-        address.setState(dataAddress.state());
-
-        System.out.println(address);
-
-
-        return address;
-
-    }
-
     private Employee instantiateEmployee(EmployerRequestDTO dataEmployer, Address address){
         Employee employee = new Employee();
 
@@ -117,8 +103,7 @@ public class EmployeeServices {
     }
 
     public Employee registerEmployee(AddressResquestDTO dataAddress, EmployerRequestDTO dataEmployer) {
-        Address address = instantiateAddress(dataAddress);
-
+        Address address = userServices.instantiateAddress(dataAddress);
         addressRepository.save(address);
 
         Employee employee = instantiateEmployee(dataEmployer, address);

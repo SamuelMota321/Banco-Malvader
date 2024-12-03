@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-//@Table(name = "conta")
 @NoArgsConstructor
 @Setter
 @Getter
