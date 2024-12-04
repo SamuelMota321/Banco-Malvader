@@ -58,4 +58,16 @@ public abstract class Account implements Serializable {
         if (accountType != null) this.accountType = accountType.getCode();
     }
 
+    public void debit(Double amount) {
+        if (this.balance < amount) {
+            throw new IllegalArgumentException("Insufficient funds");
+        }
+        this.balance -= amount;
+    }
+
+    public void credit(Double amount) {
+        this.balance += amount;
+    }
+
+
 }

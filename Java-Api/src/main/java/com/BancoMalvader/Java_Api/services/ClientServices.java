@@ -16,8 +16,11 @@ import com.BancoMalvader.Java_Api.repositories.AddressRepository;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.repositories.TransationRepository;
 import com.BancoMalvader.Java_Api.schemas.TransferencySchema;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -146,28 +149,27 @@ public class ClientServices {
 
     }
 
-    public void transferency(Long clientId, TransferencySchema schema) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        Optional<Account> accountOptional = accountRepository.findByAccountNumber(schema.getAccountNumber());
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            if (client.getAccount() != null) {
-                Account account1 = client.getAccount();
-                if (accountOptional.isPresent()) {
-                    Account account2 = accountOptional.get();
-                    Instant hour = Instant.now();
-                    Transation transation = new Transation(null, hour, schema.getValue(), TransationType.Transferencia, account1);
-                    double atualBalanceAccount1 = account1.getBalance();
-                    double setBalanceAccount1 = atualBalanceAccount1 - schema.getValue();
-                    double atualBalanceAccount2 = account2.getBalance();
-                    double setBalanceAccount2 = atualBalanceAccount2 + schema.getValue();
-                    account1.setBalance(setBalanceAccount1);
-                    account2.setBalance(setBalanceAccount2);
-                    transationRepository.save(transation);
-                    accountRepository.saveAll(Arrays.asList(account1, account2));
-                }
-            }
+    @Transactional
+    public void transferency(Client client, TransferencySchema schema) {
+        Account senderAccount = Optional.ofNullable(client.getAccount()).
+                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+        Double value = schema.getValue();
+
+        Account receiverAccount = accountRepository.findByAccountNumber(schema.getAccountNumber())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+
+        if (senderAccount.getBalance() < value) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente não encontrado");
         }
+
+        Instant hour = Instant.now();
+        Transation transation = new Transation(null, hour, value, TransationType.Transferencia, senderAccount);
+
+        senderAccount.debit(value);
+        receiverAccount.credit(value);
+
+        transationRepository.save(transation);
+        accountRepository.saveAll(Arrays.asList(senderAccount, receiverAccount));
     }
 
 }

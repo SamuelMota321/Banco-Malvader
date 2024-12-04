@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -169,28 +170,12 @@ public class ClientController {
 
     @PostMapping("/transferency/{clientId}")
     public ResponseEntity<?> transferency(@PathVariable Long clientId, @RequestBody TransferencySchema schema) {
-        Optional<Client> optionalClient = clientRepository.findById(clientId);
-        String message;
-        if (optionalClient.isPresent()) {
-            Account account = optionalClient.get().getAccount();
-            if (account != null) {
-                if (schema.getValue() <= account.getBalance()) {
-                    services.transferency(clientId, schema);
-                    message = "A transferencia de " + schema.getValue() + " para a conta " + schema.getAccountNumber() + " foi efetuada com sucesso";
-                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of("Transferencia: ", message));
-                } else {
-                    message = "O valor na conta não é suficiente para efetuar a transferencia";
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", message));
-                }
-            } else {
-                message = "Conta não encontrada";
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", message));
-            }
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
 
-        } else {
-            message = "Cliente não encontrado";
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", message));
-        }
+        services.transferency(client, schema);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of("Transferencia: ", "A transferencia de " + schema.getValue() + " para a conta " + schema.getAccountNumber() + " foi efetuada com sucesso"));
 
     }
 }
