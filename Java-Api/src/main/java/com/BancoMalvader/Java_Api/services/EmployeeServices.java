@@ -46,10 +46,6 @@ public class EmployeeServices {
     @Autowired
     private AddressRepository addressRepository;
 
-    @Autowired
-    private UserServices userServices;
-
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -85,28 +81,12 @@ public class EmployeeServices {
         return obj.get();
     }
 
-
-    private Employee instantiateEmployee(EmployerRequestDTO dataEmployer, Address address){
-        Employee employee = new Employee();
-
-        employee.setName(dataEmployer.nome());
-        employee.setBornDate(dataEmployer.bornDate());
-        employee.setPassword(dataEmployer.password());
-        employee.setUserType(UserType.Funcionario);
-        employee.setPhone(dataEmployer.phone());
-        employee.setCPF(dataEmployer.cpf());
-        employee.setAddress(address);
-        employee.setJob(dataEmployer.job());
-        employee.setEmployeeCode(dataEmployer.employerCode());
-
-        return employee;
-    }
-
     public Employee registerEmployee(AddressResquestDTO dataAddress, EmployerRequestDTO dataEmployer) {
-        Address address = userServices.instantiateAddress(dataAddress);
+
+        Address address = new Address(dataAddress);
         addressRepository.save(address);
 
-        Employee employee = instantiateEmployee(dataEmployer, address);
+        Employee employee = new Employee(dataEmployer, address, UserType.Funcionario);
 
         employeeRepository.save(employee);
 

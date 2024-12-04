@@ -15,20 +15,6 @@ public class UserServices {
     @Autowired
     private UsersRepository repository;
 
-    public Address instantiateAddress(AddressResquestDTO dataAddress) {
-        Address address = new Address();
-
-        address.setZipCode(dataAddress.zipCode());
-        address.setLocal(dataAddress.local());
-        address.setHouseNumber(dataAddress.houseNumber());
-        address.setCity(dataAddress.city());
-        address.setNeighborhood(dataAddress.neighborhood());
-        address.setState(dataAddress.state());
-
-        return address;
-
-    }
-
     public List<User> findAll() {
         return repository.findAll();
     }
