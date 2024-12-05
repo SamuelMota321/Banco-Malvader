@@ -5,6 +5,7 @@ import com.BancoMalvader.Java_Api.entities.operations.Transation;
 import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.client.ClientRequestDTO;
+import com.BancoMalvader.Java_Api.exceptions.ClientNotFoundException;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
 import com.BancoMalvader.Java_Api.schemas.TransferencySchema;
@@ -46,11 +47,9 @@ public class ClientController {
     @GetMapping("/query-extract/{clientId}")
     public ResponseEntity<?> getExtract(@PathVariable Long clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao e"));
+                .orElseThrow(ClientNotFoundException::new);
 
         Set<Transation> transations = services.queryExtract(client);
-
-        if (transations == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error","Essa conta ainda não possui nenhuma transação"));
 
         return ResponseEntity.status(HttpStatus.FOUND).body(transations);
 
@@ -59,7 +58,7 @@ public class ClientController {
     @GetMapping("/query-limit/{clientId}")
     public ResponseEntity<?> getLimit(@PathVariable Long clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
 
         Double limit = services.queryLimit(client);
 
@@ -70,7 +69,7 @@ public class ClientController {
     @GetMapping("/query-balance/{clientId}")
     public ResponseEntity<String> queryBalance(@PathVariable Long clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
         Double balance = services.getBalance(client);
 
         return ResponseEntity.status(HttpStatus.FOUND).body("O seu saldo atual é igual a: " + balance);
@@ -89,7 +88,7 @@ public class ClientController {
     @PostMapping("/deposit/{clientId}")
     public ResponseEntity<String> deposit(@PathVariable Long clientId, @RequestBody Double value) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
 
         Account account = services.deposit(client, value);
         return ResponseEntity.status(HttpStatus.OK).body("O seu saldo agora é igual a: " + account.getBalance());
@@ -98,21 +97,17 @@ public class ClientController {
     @PostMapping("/withdraw/{clientId}")
     public ResponseEntity<String> withdraw(@PathVariable Long clientId, @RequestBody Double value) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(ClientNotFoundException::new);
 
-        try{
-            Account account = services.withdraw(client, value);
-            return ResponseEntity.status(HttpStatus.OK).body("O seu saldo agora é igual a: " + account.getBalance());
-
-        } catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O valor na conta não é suficiente para efetuar o saque");
-        }
+        Account account = services.withdraw(client, value);
+        return ResponseEntity.status(HttpStatus.OK).body("O seu saldo agora é igual a: " + account.getBalance());
+            
     }
 
     @PostMapping("/transferency/{clientId}")
     public ResponseEntity<?> transferency(@PathVariable Long clientId, @RequestBody TransferencySchema schema) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
 
         services.transferency(client, schema);
 

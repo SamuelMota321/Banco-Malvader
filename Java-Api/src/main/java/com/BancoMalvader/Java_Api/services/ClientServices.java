@@ -9,6 +9,10 @@ import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.client.ClientRequestDTO;
+import com.BancoMalvader.Java_Api.exceptions.ClientNotFoundException;
+import com.BancoMalvader.Java_Api.exceptions.InsufficientBalanceException;
+import com.BancoMalvader.Java_Api.exceptions.LimitExcepton;
+import com.BancoMalvader.Java_Api.exceptions.TransactionsNotFoundException;
 import com.BancoMalvader.Java_Api.repositories.AccountRepository;
 import com.BancoMalvader.Java_Api.repositories.AddressRepository;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
@@ -47,21 +51,21 @@ public class ClientServices {
 
     public Client findById(Long id) {
         return clientRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Cliente nao encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
     }
 
     public Double getBalance(Client client) {
         Account account = Optional.ofNullable(client.getAccount())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada"));
+                .orElseThrow(ClientNotFoundException::new);
 
         return account.getBalance();
     }
 
     public Set<Transation> queryExtract(Client client) {
         Account account = Optional.ofNullable(client.getAccount()).
-                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada"));
+                orElseThrow(ClientNotFoundException::new);
 
-        if (account.getTransations().isEmpty()) return null;
+        if (account.getTransations().isEmpty()) throw new TransactionsNotFoundException("Usuário não possui historico de transações.");
 
         return account.getTransations();
 
@@ -69,24 +73,24 @@ public class ClientServices {
 
     public Double queryLimit(Client client) {
         Account account = Optional.ofNullable(client.getAccount()).
-                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada"));
+                orElseThrow(ClientNotFoundException::new);
 
         if (account instanceof Current) return ((Current) account).getLimitt();
 
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Conta poupança não pode ter limite de crédito");
+        throw new LimitExcepton("Conta poupança não pode ter limite de crédito");
     }
 
     @Transactional
     public void transferency(Client client, TransferencySchema schema) {
         Account senderAccount = Optional.ofNullable(client.getAccount()).
-                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+                orElseThrow(ClientNotFoundException::new);
         Double value = schema.getValue();
 
         Account receiverAccount = accountRepository.findByAccountNumber(schema.getAccountNumber())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
 
         if (senderAccount.getBalance() < value) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente não encontrado");
+            throw new InsufficientBalanceException();
         }
 
         Instant hour = Instant.now();
@@ -111,7 +115,7 @@ public class ClientServices {
     @Transactional
     public Account deposit(Client client, Double value) {
         Account account = Optional.ofNullable(client.getAccount())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada"));
+                .orElseThrow(ClientNotFoundException::new);
 
         Instant hour = Instant.now();
         Transation transation = new Transation(null, hour, value, TransationType.Deposito, account);
@@ -127,7 +131,7 @@ public class ClientServices {
     @Transactional
     public Account withdraw(Client client, Double value) {
         Account account = Optional.ofNullable(client.getAccount())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(ClientNotFoundException::new);
 
         Instant hour = Instant.now();
         Transation transation = new Transation(null, hour, value, TransationType.Saque, account);
