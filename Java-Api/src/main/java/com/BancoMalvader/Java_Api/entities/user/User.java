@@ -12,18 +12,17 @@ import java.time.Instant;
 
 
 @Entity
-@Table(name = "users")
 @Setter
 @Getter
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     protected Long id;
     protected String name;
     protected String CPF;

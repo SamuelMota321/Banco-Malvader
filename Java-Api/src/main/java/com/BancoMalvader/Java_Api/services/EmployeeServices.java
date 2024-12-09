@@ -1,6 +1,7 @@
 package com.BancoMalvader.Java_Api.services;
 
 import com.BancoMalvader.Java_Api.entities.account.Account;
+import com.BancoMalvader.Java_Api.entities.account.AccountRequestDTO;
 import com.BancoMalvader.Java_Api.entities.account.AccountType;
 import com.BancoMalvader.Java_Api.entities.account.current.Current;
 import com.BancoMalvader.Java_Api.entities.account.saving.Saving;
@@ -86,7 +87,7 @@ public class EmployeeServices {
     }
 
 
-    private Employee instantiateEmployee(EmployerRequestDTO dataEmployer, Address address){
+    private Employee instantiateEmployee(EmployerRequestDTO dataEmployer, Address address) {
         Employee employee = new Employee();
 
         employee.setName(dataEmployer.nome());
@@ -113,22 +114,23 @@ public class EmployeeServices {
         return employee;
     }
 
-    public Account createAccountForClient(Long clientId, String accountType, Double initialBalance, String agency, Double limitt, Instant maturity, Double yieldRate) {
+    public Account createAccountForClient(Long clientId,AccountRequestDTO dataAccount) {
         // Verifica se o cliente existe
         Optional<Client> clientOptional = clientRepository.findById(clientId);
-        if (!clientOptional.isPresent()) {
+        if (clientOptional.isEmpty()) {
             throw new RuntimeException("Client not found");
         }
 
         Client client = clientOptional.get();
         Account account;
         Integer accountNumber = generateUniqueAccountNumber();
-        if ("conta_corrente".equals(accountType)) {
-            account = new Current(null, AccountType.Conta_corrente, initialBalance, accountNumber, agency, client, limitt, maturity); // Supondo que 'Current' seja uma subclasse de 'Account'
+        if ("conta_corrente".equals(dataAccount.accountType())) {
+            account = new Current(null, AccountType.Conta_corrente, dataAccount.balance(), accountNumber, dataAccount.agency(), client, dataAccount.limitt(), dataAccount.maturity()); // Supondo que 'Current' seja uma subclasse de 'Account'
         } else {
-            account = new Saving(null, AccountType.Conta_Poupanca, initialBalance, accountNumber, agency, client, yieldRate); // Supondo que 'Saving' seja uma subclasse de 'Account'
+            account = new Saving(null, AccountType.Conta_Poupanca, dataAccount.balance(), accountNumber, dataAccount.agency(), client, dataAccount.yieldRate()); // Supondo que 'Saving' seja uma subclasse de 'Account'
         }
-        return accountRepository.save(account);
+        accountRepository.save(account);
+        return account;
     }
 
     private Integer generateUniqueAccountNumber() {
@@ -251,7 +253,7 @@ public class EmployeeServices {
         if (employee.getPassword().equals(password)) {
             newEmployee.setUserType(UserType.Funcionario);
             return employeeRepository.save(newEmployee);
-        } else{
+        } else {
             throw new IllegalArgumentException("Senha incorreta");
         }
 
