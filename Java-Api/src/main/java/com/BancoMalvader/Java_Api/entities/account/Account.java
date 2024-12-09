@@ -2,6 +2,7 @@ package com.BancoMalvader.Java_Api.entities.account;
 
 import com.BancoMalvader.Java_Api.entities.operations.Transation;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
+import com.BancoMalvader.Java_Api.exceptions.InsufficientBalanceException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -57,5 +58,17 @@ public abstract class Account implements Serializable {
     public void setAccountType(AccountType accountType) {
         if (accountType != null) this.accountType = accountType.getCode();
     }
+
+    public void debit(Double amount) {
+        if (this.balance < amount) {
+            throw new InsufficientBalanceException("Dinheiro insuficiente");
+        }
+        this.balance -= amount;
+    }
+
+    public void credit(Double amount) {
+        this.balance += amount;
+    }
+
 
 }

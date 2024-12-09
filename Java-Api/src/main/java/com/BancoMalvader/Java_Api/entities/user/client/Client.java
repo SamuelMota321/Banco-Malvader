@@ -33,6 +33,9 @@ public class Client extends User implements Serializable {
         super(id, name, bornDate, password, userType, phone, CPF, address);
     }
 
+    public Client(ClientRequestDTO data, Address address, UserType userType){
+        super(null, data.name(), data.bornDate(), data.password(), userType, data.phone(), data.CPF(), address);
+    }
 
 
 }

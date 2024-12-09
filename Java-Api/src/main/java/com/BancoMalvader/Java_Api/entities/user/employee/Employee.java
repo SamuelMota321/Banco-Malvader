@@ -37,6 +37,12 @@ public class Employee extends User implements Serializable {
         this.job = job;
     }
 
+    public Employee(EmployerRequestDTO data , Address address, UserType userType){
+        super(null, data.nome(), data.bornDate(), data.password(), userType, data.phone(), data.cpf(), address);
+        this.employeeCode = data.employerCode();
+        this.job = data.job();
+    }
+
 //    public void generateMovementReport() {
 //        //implementação da lógica aqui
 //    }

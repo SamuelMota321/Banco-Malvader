@@ -1,7 +1,6 @@
 package com.BancoMalvader.Java_Api.services;
 
 import com.BancoMalvader.Java_Api.entities.account.Account;
-import com.BancoMalvader.Java_Api.entities.account.AccountType;
 import com.BancoMalvader.Java_Api.entities.account.current.Current;
 import com.BancoMalvader.Java_Api.entities.operations.Transation;
 import com.BancoMalvader.Java_Api.entities.operations.TransationType;
@@ -10,14 +9,20 @@ import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.client.ClientRequestDTO;
-import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
+import com.BancoMalvader.Java_Api.exceptions.ClientNotFoundException;
+import com.BancoMalvader.Java_Api.exceptions.InsufficientBalanceException;
+import com.BancoMalvader.Java_Api.exceptions.LimitExcepton;
+import com.BancoMalvader.Java_Api.exceptions.TransactionsNotFoundException;
 import com.BancoMalvader.Java_Api.repositories.AccountRepository;
 import com.BancoMalvader.Java_Api.repositories.AddressRepository;
 import com.BancoMalvader.Java_Api.repositories.ClientRepository;
 import com.BancoMalvader.Java_Api.repositories.TransationRepository;
 import com.BancoMalvader.Java_Api.schemas.TransferencySchema;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -27,147 +32,116 @@ import java.util.Set;
 
 @Service
 public class ClientServices {
+
     @Autowired
     private ClientRepository clientRepository;
+
     @Autowired
     private AccountRepository accountRepository;
+
     @Autowired
     private TransationRepository transationRepository;
-    @Autowired
-    private UserServices userServices;
+
     @Autowired
     private AddressRepository addressRepository;
-
-    private Client instantiateClient(ClientRequestDTO dataClient, Address address) {
-        Client client = new Client();
-
-        client.setName(dataClient.name());
-        client.setBornDate(dataClient.bornDate());
-        client.setPassword(dataClient.password());
-        client.setUserType(UserType.Cliente);
-        client.setPhone(dataClient.phone());
-        client.setCPF(dataClient.CPF());
-        client.setAddress(address);
-
-        return client;
-    }
 
     public List<Client> findAll() {
         return clientRepository.findAll();
     }
 
     public Client findById(Long id) {
-        Optional<Client> obj = clientRepository.findById(id);
-        return obj.get();
+        return clientRepository.findById(id)
+                .orElseThrow(ClientNotFoundException::new);
     }
 
+    public Double getBalance(Client client) {
+        Account account = Optional.ofNullable(client.getAccount())
+                .orElseThrow(ClientNotFoundException::new);
+
+        return account.getBalance();
+    }
+
+    public Set<Transation> queryExtract(Client client) {
+        Account account = Optional.ofNullable(client.getAccount()).
+                orElseThrow(ClientNotFoundException::new);
+
+        if (account.getTransations().isEmpty()) throw new TransactionsNotFoundException("Usuário não possui historico de transações.");
+
+        return account.getTransations();
+
+    }
+
+    public Double queryLimit(Client client) {
+        Account account = Optional.ofNullable(client.getAccount()).
+                orElseThrow(ClientNotFoundException::new);
+
+        if (account instanceof Current) return ((Current) account).getLimitt();
+
+        throw new LimitExcepton("Conta poupança não pode ter limite de crédito");
+    }
+
+    @Transactional
+    public void transferency(Client client, TransferencySchema schema) {
+        Account senderAccount = Optional.ofNullable(client.getAccount()).
+                orElseThrow(ClientNotFoundException::new);
+        Double value = schema.getValue();
+
+        Account receiverAccount = accountRepository.findByAccountNumber(schema.getAccountNumber())
+                .orElseThrow(ClientNotFoundException::new);
+
+        if (senderAccount.getBalance() < value) {
+            throw new InsufficientBalanceException();
+        }
+
+        Instant hour = Instant.now();
+        Transation transation = new Transation(null, hour, value, TransationType.Transferencia, senderAccount);
+
+        senderAccount.debit(value);
+        receiverAccount.credit(value);
+
+        transationRepository.save(transation);
+        accountRepository.saveAll(Arrays.asList(senderAccount, receiverAccount));
+    }
+
+    @Transactional
     public Client registerClient(ClientRequestDTO dataClient, AddressResquestDTO dataAddress) {
-        Address address = userServices.instantiateAddress(dataAddress);
+        Address address = new Address(dataAddress);
         addressRepository.save(address);
-        Client client = instantiateClient(dataClient, address);
+        Client client = new Client(dataClient, address, UserType.Cliente);
         clientRepository.save(client);
         return client;
     }
 
-    public Double queryBalance(Long clientId) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            if (client.getAccount() != null) {
-                Account account = client.getAccount();
-                return account.getBalance();
-            }
-        }
-        return null;
+    @Transactional
+    public Account deposit(Client client, Double value) {
+        Account account = Optional.ofNullable(client.getAccount())
+                .orElseThrow(ClientNotFoundException::new);
+
+        Instant hour = Instant.now();
+        Transation transation = new Transation(null, hour, value, TransationType.Deposito, account);
+
+        account.credit(value);
+
+        transationRepository.save(transation);
+        accountRepository.save(account);
+
+        return account;
     }
 
-    public Account deposit(Long clientId, Double value) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            if (client.getAccount() != null) {
-                Account account = client.getAccount();
-                Instant hour = Instant.now();
-                Transation transation = new Transation(null, hour, value, TransationType.Deposito, account);
-                transationRepository.save(transation);
-                double atualBalance = account.getBalance();
-                double setBalance = atualBalance + value;
-                account.setBalance(setBalance);
-                return accountRepository.save(account);
-            }
-        }
-        return null;
-    }
+    @Transactional
+    public Account withdraw(Client client, Double value) {
+        Account account = Optional.ofNullable(client.getAccount())
+                .orElseThrow(ClientNotFoundException::new);
 
-    public Account withdraw(Long clientId, Double value) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            if (client.getAccount() != null) {
-                Account account = client.getAccount();
-                Instant hour = Instant.now();
-                Transation transation = new Transation(null, hour, value, TransationType.Saque, account);
-                transationRepository.save(transation);
-                double atualBalance = account.getBalance();
-                double setBalance = atualBalance - value;
-                account.setBalance(setBalance);
-                return accountRepository.save(account);
-            }
-        }
-        return null;
-    }
+        Instant hour = Instant.now();
+        Transation transation = new Transation(null, hour, value, TransationType.Saque, account);
 
-    public Set<Transation> queryExtract(Long clientId) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            if (client.getAccount() != null) {
-                Account account = client.getAccount();
-                return account.getTransations();
-            }
-        }
-        return null;
-    }
+        account.debit(value);
 
-    public Double queryLimit(Long clientId) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            if (client.getAccount() != null) {
-                Account account = client.getAccount();
-                if (account.getAccountType() == AccountType.Conta_corrente) {
-                    return ((Current) account).getLimitt();
-                } else {
-                    return null;
-                }
-            }
-        }
-        return null;
+        transationRepository.save(transation);
+        accountRepository.save(account);
 
-    }
-
-    public void transferency(Long clientId, TransferencySchema schema) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        Optional<Account> accountOptional = accountRepository.findByAccountNumber(schema.getAccountNumber());
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            if (client.getAccount() != null) {
-                Account account1 = client.getAccount();
-                if (accountOptional.isPresent()) {
-                    Account account2 = accountOptional.get();
-                    Instant hour = Instant.now();
-                    Transation transation = new Transation(null, hour, schema.getValue(), TransationType.Transferencia, account1);
-                    double atualBalanceAccount1 = account1.getBalance();
-                    double setBalanceAccount1 = atualBalanceAccount1 - schema.getValue();
-                    double atualBalanceAccount2 = account2.getBalance();
-                    double setBalanceAccount2 = atualBalanceAccount2 + schema.getValue();
-                    account1.setBalance(setBalanceAccount1);
-                    account2.setBalance(setBalanceAccount2);
-                    transationRepository.save(transation);
-                    accountRepository.saveAll(Arrays.asList(account1, account2));
-                }
-            }
-        }
+        return account;
     }
 
 }
