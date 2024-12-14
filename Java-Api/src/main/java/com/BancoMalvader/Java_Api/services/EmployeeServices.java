@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 
 @Service
 public class EmployeeServices {
@@ -50,32 +51,29 @@ public class EmployeeServices {
     @Autowired
     private UserServices userServices;
 
-
     @PersistenceContext
     private EntityManager entityManager;
 
     private static Address getAddress(ClientSchema schema, Client client) {
         Address address = client.getAddress();
 
-        if (address.getZipCode() != null)
-            address.setZipCode(schema.getAddress().getZipCode());
+        setIfNotNull(address::setZipCode, address.getZipCode());
+        setIfNotNull(address::setLocal, address.getLocal());
+        setIfNotNull(address::setHouseNumber, address.getHouseNumber());
+        setIfNotNull(address::setNeighborhood, address.getNeighborhood());
+        setIfNotNull(address::setCity, address.getCity());
+        setIfNotNull(address::setState, address.getState());
 
-        if (address.getLocal() != null)
-            address.setLocal(schema.getAddress().getLocal());
-
-        if (address.getHouseNumber() != null)
-            address.setHouseNumber(schema.getAddress().getHouseNumber());
-
-        if (address.getNeighborhood() != null)
-            address.setNeighborhood(schema.getAddress().getNeighborhood());
-
-        if (address.getCity() != null)
-            address.setCity(schema.getAddress().getCity());
-
-        if (address.getState() != null)
-            address.setState(schema.getAddress().getState());
         return address;
     }
+
+    private static <T> void setIfNotNull(Consumer<T> setter, T value) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
+
 
     public List<Employee> findAll() {
         return employeeRepository.findAll();
@@ -115,7 +113,6 @@ public class EmployeeServices {
     }
 
     public Account createAccountForClient(Long clientId,AccountRequestDTO dataAccount) {
-        // Verifica se o cliente existe
         Optional<Client> clientOptional = clientRepository.findById(clientId);
         if (clientOptional.isEmpty()) {
             throw new RuntimeException("Client not found");
@@ -125,12 +122,11 @@ public class EmployeeServices {
         Account account;
         Integer accountNumber = generateUniqueAccountNumber();
         if ("conta_corrente".equals(dataAccount.accountType())) {
-            account = new Current(null, AccountType.Conta_corrente, dataAccount.balance(), accountNumber, dataAccount.agency(), client, dataAccount.limitt(), dataAccount.maturity()); // Supondo que 'Current' seja uma subclasse de 'Account'
+            account = new Current(null, AccountType.Conta_corrente, dataAccount.balance(), accountNumber, dataAccount.agency(), client, dataAccount.limitt(), dataAccount.maturity());
         } else {
-            account = new Saving(null, AccountType.Conta_Poupanca, dataAccount.balance(), accountNumber, dataAccount.agency(), client, dataAccount.yieldRate()); // Supondo que 'Saving' seja uma subclasse de 'Account'
+            account = new Saving(null, AccountType.Conta_Poupanca, dataAccount.balance(), accountNumber, dataAccount.agency(), client, dataAccount.yieldRate());
         }
-        accountRepository.save(account);
-        return account;
+        return accountRepository.save(account);
     }
 
     private Integer generateUniqueAccountNumber() {

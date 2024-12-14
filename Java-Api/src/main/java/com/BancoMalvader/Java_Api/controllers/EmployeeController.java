@@ -6,6 +6,7 @@ import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
 import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
+import com.BancoMalvader.Java_Api.exceptions.HandleValidation;
 import com.BancoMalvader.Java_Api.schemas.AccountSchema;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
 import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
@@ -15,9 +16,13 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/funcionarios")
@@ -51,9 +56,8 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
     }
 
-    // Metodo utilitário para converter o schema em entidade Employee
     @PostMapping("/criar-conta/{clientId}")
-    public ResponseEntity<?> createAccount(@PathVariable Long clientId, @RequestBody AccountSchema schema) {
+    public ResponseEntity<?> createAccount(@PathVariable Long clientId, @Valid @RequestBody AccountSchema schema) {
         AccountRequestDTO accountRequestDTO = new AccountRequestDTO(schema.getAgency(), schema.getInitialBalance(), schema.getAccountType(), schema.getYieldRate(), schema.getLimitt(), schema.getMaturity());
         Account account = services.createAccountForClient(clientId,accountRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(account);

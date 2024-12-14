@@ -4,41 +4,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.Instant;
 
 @Getter
 @Setter
+@Data
 public class ClientSchema {
-
-    @JsonProperty("name")
-    @NotBlank(message = "O nome é obrigatório.")
-    @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres.")
+    @NotBlank(message = "Campo não informado")
     private String name;
-
-    @JsonProperty("cpf")
-    @NotBlank(message = "O CPF é obrigatório.")
-    @Size(min = 6, max = 11, message = "O CPF deve conter entre 6 e 11 dígitos.")
+    @CPF(message = "CPF inválido")
+    @NotBlank
     private String cpf;
-
-    @JsonProperty("bornDate")
-    @NotNull(message = "A data de nascimento é obrigatória.")
+    @NotNull(message = "Campo não informado")
     private Instant bornDate;
-
-    @JsonProperty("password")
-    @NotBlank(message = "A senha é obrigatória.")
-    @Size(min = 6, max = 20, message = "A senha deve ter entre 6 e 20 caracteres.")
+    @NotBlank(message = "Campo não informado")
     private String password;
-
-    @JsonProperty("phone")
-    @NotBlank(message = "O telefone é obrigatório.")
-    @Size(max = 15, message = "O telefone deve ter no máximo 15 caracteres.")
+    @NotBlank(message = "Campo não informado")
     private String phone;
-
-    @JsonProperty("address")
-    @NotNull(message = "O endereço é obrigatório.")
+    @NotNull(message = "Campo não informado")
     private AddressSchema address;
-
 }
