@@ -21,11 +21,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Consumer;
 
 @Service
 public class EmployeeServices {
@@ -54,37 +52,6 @@ public class EmployeeServices {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private static Address getAddress(ClientSchema schema, Client client) {
-        Address address = client.getAddress();
-
-        setIfNotNull(address::setZipCode, address.getZipCode());
-        setIfNotNull(address::setLocal, address.getLocal());
-        setIfNotNull(address::setHouseNumber, address.getHouseNumber());
-        setIfNotNull(address::setNeighborhood, address.getNeighborhood());
-        setIfNotNull(address::setCity, address.getCity());
-        setIfNotNull(address::setState, address.getState());
-
-        return address;
-    }
-
-    private static <T> void setIfNotNull(Consumer<T> setter, T value) {
-        if (value != null) {
-            setter.accept(value);
-        }
-    }
-
-
-
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
-    }
-
-    public Employee findById(Long id) {
-        Optional<Employee> obj = employeeRepository.findById(id);
-        return obj.get();
-    }
-
-
     private Employee instantiateEmployee(EmployerRequestDTO dataEmployer, Address address) {
         Employee employee = new Employee();
 
@@ -101,24 +68,25 @@ public class EmployeeServices {
         return employee;
     }
 
+    public List<Employee> findAll() {
+        return employeeRepository.findAll();
+    }
+
+    public Employee findById(Long id) {
+        return employeeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Funcionário não encontrado"));
+    }
+
     public Employee registerEmployee(AddressResquestDTO dataAddress, EmployerRequestDTO dataEmployer) {
         Address address = userServices.instantiateAddress(dataAddress);
         addressRepository.save(address);
-
         Employee employee = instantiateEmployee(dataEmployer, address);
-
         employeeRepository.save(employee);
 
         return employee;
     }
 
-    public Account createAccountForClient(Long clientId,AccountRequestDTO dataAccount) {
-        Optional<Client> clientOptional = clientRepository.findById(clientId);
-        if (clientOptional.isEmpty()) {
-            throw new RuntimeException("Client not found");
-        }
-
-        Client client = clientOptional.get();
+    public Account createAccountForClient(Long clientId, AccountRequestDTO dataAccount) {
+        Client client = clientRepository.findById(clientId).orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
         Account account;
         Integer accountNumber = generateUniqueAccountNumber();
         if ("conta_corrente".equals(dataAccount.accountType())) {
@@ -140,27 +108,18 @@ public class EmployeeServices {
 
     @Transactional
     public void deleteAccount(Long accountId) {
-        // Verifica se o ID está em conta_corrente
-        Long count = ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM conta_corrente WHERE id = :id")
-                .setParameter("id", accountId)
-                .getSingleResult()).longValue();
+        long count = ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM conta_corrente WHERE id = :id").setParameter("id", accountId).getSingleResult()).longValue();
 
         if (count > 0) {
-            entityManager.createNativeQuery("DELETE FROM conta_corrente WHERE id = :id")
-                    .setParameter("id", accountId)
-                    .executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM conta_corrente WHERE id = :id").setParameter("id", accountId).executeUpdate();
             return;
         }
 
         // Verifica se o ID está em conta_poupanca
-        count = ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM conta_poupanca WHERE id = :id")
-                .setParameter("id", accountId)
-                .getSingleResult()).longValue();
+        count = ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM conta_poupanca WHERE id = :id").setParameter("id", accountId).getSingleResult()).longValue();
 
         if (count > 0) {
-            entityManager.createNativeQuery("DELETE FROM conta_poupanca WHERE id = :id")
-                    .setParameter("id", accountId)
-                    .executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM conta_poupanca WHERE id = :id").setParameter("id", accountId).executeUpdate();
             return;
         }
 
@@ -168,19 +127,17 @@ public class EmployeeServices {
     }
 
     public Account queryAccountData(int accountNumber) {
-        Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
-        return accountOptional.get();
+        return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
+
     }
 
     public Client queryClientData(Long idClient) {
-        Optional<Client> clientOptional = clientRepository.findById(idClient);
-        return clientOptional.get();
+        return clientRepository.findById(idClient).orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+
     }
 
     public void alterAccountData(AccountSchema schema, int accountNumber) {
-        Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
-        Account account = accountOptional.get();
-
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
         AccountType accountType = account.getAccountType();
 
         if (accountType == AccountType.Conta_corrente) {
@@ -193,27 +150,20 @@ public class EmployeeServices {
     }
 
     private void updateCurrentAccount(AccountSchema schema, int accountNumber) {
-        Current current = currentRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new EntityNotFoundException("Conta corrente com número " + accountNumber + " não encontrada."));
+        Current current = currentRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new EntityNotFoundException("Conta corrente com número " + accountNumber + " não encontrada."));
 
-        if (schema.getInitialBalance() != null)
-            current.setBalance(schema.getInitialBalance());
-        if (schema.getLimitt() != null)
-            current.setLimitt(schema.getLimitt());
-        if (schema.getMaturity() != null)
-            current.setMaturity(schema.getMaturity());
+        if (schema.getInitialBalance() != null) current.setBalance(schema.getInitialBalance());
+        if (schema.getLimitt() != null) current.setLimitt(schema.getLimitt());
+        if (schema.getMaturity() != null) current.setMaturity(schema.getMaturity());
         currentRepository.save(current);
     }
 
     private void updateSavingAccount(AccountSchema schema, int accountNumber) {
-        Saving saving = savingRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new EntityNotFoundException("Conta poupança com número " + accountNumber + " não encontrada."));
+        Saving saving = savingRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new EntityNotFoundException("Conta poupança com número " + accountNumber + " não encontrada."));
 
-        if (schema.getInitialBalance() != null)
-            saving.setBalance(schema.getInitialBalance());
+        if (schema.getInitialBalance() != null) saving.setBalance(schema.getInitialBalance());
 
-        if (schema.getYieldRate() != null)
-            saving.setYieldRate(schema.getYieldRate());
+        if (schema.getYieldRate() != null) saving.setYieldRate(schema.getYieldRate());
         savingRepository.save(saving);
     }
 
@@ -221,39 +171,35 @@ public class EmployeeServices {
         Optional<Client> optionalClient = clientRepository.findById(clientId);
         Client client = optionalClient.orElseThrow(() -> new EntityNotFoundException("Cliente com ID " + clientId + " não encontrado."));
 
-        if (schema.getName() != null)
-            client.setName(schema.getName());
+        if (schema.getName() != null) client.setName(schema.getName());
 
-        if (schema.getCpf() != null)
-            client.setCPF(schema.getCpf());
+        if (schema.getCpf() != null) client.setCPF(schema.getCpf());
 
-        if (schema.getPhone() != null)
-            client.setPhone(schema.getPhone());
+        if (schema.getPhone() != null) client.setPhone(schema.getPhone());
 
-        if (schema.getPassword() != null)
-            client.setPassword(schema.getPassword());
+        if (schema.getPassword() != null) client.setPassword(schema.getPassword());
 
-        if (schema.getBornDate() != null)
-            client.setBornDate(schema.getBornDate());
+        if (schema.getBornDate() != null) client.setBornDate(schema.getBornDate());
 
         if (schema.getAddress() != null) {
-            Address address = getAddress(schema, client);
+            Address address = client.getAddress();
             addressRepository.save(address);
         }
         clientRepository.save(client);
     }
 
-    public Employee employeeRegisterEmployee(Employee newEmployee, Long employeeId, String password) {
-        Optional<Employee> employeeOptional = employeeRepository.findById(employeeId);
-        Employee employee = employeeOptional.get();
+    public Employee employeeRegisterEmployee(EmployerRequestDTO dataEmployer, AddressResquestDTO dataAddress, Long employeeId, String password) {
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new EntityNotFoundException("Funcionário não encontrado"));
         if (employee.getPassword().equals(password)) {
+            Address address = userServices.instantiateAddress(dataAddress);
+            addressRepository.save(address);
+            Employee newEmployee = instantiateEmployee(dataEmployer, address);
             newEmployee.setUserType(UserType.Funcionario);
             return employeeRepository.save(newEmployee);
         } else {
             throw new IllegalArgumentException("Senha incorreta");
         }
 
+
     }
-
-
 }

@@ -16,13 +16,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/funcionarios")
@@ -30,9 +26,6 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeServices services;
-
-    @Autowired
-    private BodyParserServices bodyParserServices;
 
     @GetMapping
     public ResponseEntity<List<Employee>> findAll() {
@@ -96,24 +89,24 @@ public class EmployeeController {
     }
 
     @PatchMapping("/update-account/{accountNumber}")
-    public ResponseEntity<String> updateAccount(@RequestBody AccountSchema schema, @PathVariable int accountNumber) {
+    public ResponseEntity<String> updateAccount(@Valid @RequestBody AccountSchema schema, @PathVariable int accountNumber) {
         services.alterAccountData(schema, accountNumber);
         String successMessage = "Conta de número " + accountNumber + " atualizada com sucesso!";
         return ResponseEntity.ok(successMessage);
     }
 
     @PatchMapping("/update-client/{clientId}")
-    public ResponseEntity<String> updateClient(@RequestBody ClientSchema clientSchema, @PathVariable Long clientId) {
+    public ResponseEntity<String> updateClient(@Valid @RequestBody ClientSchema clientSchema, @PathVariable Long clientId) {
         services.alterClientData(clientId, clientSchema);
         return ResponseEntity.ok("Cliente atualizado com sucesso!");
     }
 
     @PostMapping("/register/{employeeId}/{password}")
     public ResponseEntity<Employee> employeeRegisterEmployee(@Valid @RequestBody EmployeeSchema schema, @PathVariable Long employeeId, @PathVariable String password) {
-        Employee employee = bodyParserServices.convertToEntity(schema);
-        Employee savedEmployee = services.employeeRegisterEmployee(employee, employeeId, password);
+        AddressResquestDTO addressResquestDTO = new AddressResquestDTO(schema.getAddress().getZipCode(), schema.getAddress().getLocal(), schema.getAddress().getHouseNumber(), schema.getAddress().getNeighborhood(), schema.getAddress().getCity(), schema.getAddress().getState());
+        EmployerRequestDTO employerRequestDTO = new EmployerRequestDTO(schema.getName(), schema.getCpf(), schema.getPhone(), schema.getPassword(), schema.getJob(), schema.getBornDate(), schema.getEmployeeCode());
+        Employee savedEmployee = services.employeeRegisterEmployee(employerRequestDTO, addressResquestDTO ,employeeId, password);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
-
     }
 
 }
