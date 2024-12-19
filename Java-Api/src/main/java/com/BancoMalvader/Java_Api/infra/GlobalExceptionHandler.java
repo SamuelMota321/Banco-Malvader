@@ -1,5 +1,6 @@
-package com.BancoMalvader.Java_Api.exceptions;
+package com.BancoMalvader.Java_Api.infra;
 
+import com.BancoMalvader.Java_Api.exceptions.HandleValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

@@ -53,6 +53,14 @@ public class Address implements Serializable {
         this.state = data.state();
     }
 
+    public void update(AddressResquestDTO data) {
+        this.local = data.local();
+        this.zipCode = data.zipCode();
+        this.houseNumber = data.houseNumber();
+        this.neighborhood = data.neighborhood();
+        this.city = data.city();
+        this.state = data.state();
+    }
 
     public String toString() {
         return local + ", " + houseNumber + ", " + neighborhood + ", " + city + ", " + state + ", CEP: " + zipCode;

@@ -4,13 +4,12 @@ import com.BancoMalvader.Java_Api.entities.account.Account;
 import com.BancoMalvader.Java_Api.entities.account.AccountRequestDTO;
 import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
+import com.BancoMalvader.Java_Api.entities.user.client.ClientRequestDTO;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
 import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
-import com.BancoMalvader.Java_Api.exceptions.HandleValidation;
 import com.BancoMalvader.Java_Api.schemas.AccountSchema;
 import com.BancoMalvader.Java_Api.schemas.ClientSchema;
 import com.BancoMalvader.Java_Api.schemas.EmployeeSchema;
-import com.BancoMalvader.Java_Api.services.BodyParserServices;
 import com.BancoMalvader.Java_Api.services.EmployeeServices;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class EmployeeController {
     @PostMapping("/criar-conta/{clientId}")
     public ResponseEntity<?> createAccount(@PathVariable Long clientId, @Valid @RequestBody AccountSchema schema) {
         AccountRequestDTO accountRequestDTO = new AccountRequestDTO(schema.getAgency(), schema.getInitialBalance(), schema.getAccountType(), schema.getYieldRate(), schema.getLimitt(), schema.getMaturity());
-        Account account = services.createAccountForClient(clientId,accountRequestDTO);
+        Account account = services.createAccountForClient(clientId, accountRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
 
@@ -96,16 +95,19 @@ public class EmployeeController {
     }
 
     @PatchMapping("/update-client/{clientId}")
-    public ResponseEntity<String> updateClient(@Valid @RequestBody ClientSchema clientSchema, @PathVariable Long clientId) {
-        services.alterClientData(clientId, clientSchema);
+    public ResponseEntity<String> updateClient(@Valid @RequestBody ClientSchema schema, @PathVariable Long clientId) {
+        AddressResquestDTO addressResquestDTO = new AddressResquestDTO(schema.getAddress().getZipCode(), schema.getAddress().getLocal(), schema.getAddress().getHouseNumber(), schema.getAddress().getNeighborhood(), schema.getAddress().getCity(), schema.getAddress().getState());
+        ClientRequestDTO clientRequestDTO = new ClientRequestDTO(schema.getName(), schema.getCpf(), schema.getPhone(), schema.getPassword(), schema.getBornDate());
+        services.alterClientData(clientId, addressResquestDTO, clientRequestDTO);
         return ResponseEntity.ok("Cliente atualizado com sucesso!");
     }
+
 
     @PostMapping("/register/{employeeId}/{password}")
     public ResponseEntity<Employee> employeeRegisterEmployee(@Valid @RequestBody EmployeeSchema schema, @PathVariable Long employeeId, @PathVariable String password) {
         AddressResquestDTO addressResquestDTO = new AddressResquestDTO(schema.getAddress().getZipCode(), schema.getAddress().getLocal(), schema.getAddress().getHouseNumber(), schema.getAddress().getNeighborhood(), schema.getAddress().getCity(), schema.getAddress().getState());
         EmployerRequestDTO employerRequestDTO = new EmployerRequestDTO(schema.getName(), schema.getCpf(), schema.getPhone(), schema.getPassword(), schema.getJob(), schema.getBornDate(), schema.getEmployeeCode());
-        Employee savedEmployee = services.employeeRegisterEmployee(employerRequestDTO, addressResquestDTO ,employeeId, password);
+        Employee savedEmployee = services.employeeRegisterEmployee(employerRequestDTO, addressResquestDTO, employeeId, password);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
     }
 

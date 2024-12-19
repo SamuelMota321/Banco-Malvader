@@ -1,6 +1,7 @@
 package com.BancoMalvader.Java_Api.schemas;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,6 +27,6 @@ public class ClientSchema {
     private String password;
     @NotBlank(message = "Campo não informado")
     private String phone;
-    @NotNull(message = "Campo não informado")
+    @Valid
     private AddressSchema address;
 }

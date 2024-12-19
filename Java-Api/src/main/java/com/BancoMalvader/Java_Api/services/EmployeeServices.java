@@ -9,11 +9,11 @@ import com.BancoMalvader.Java_Api.entities.user.Address;
 import com.BancoMalvader.Java_Api.entities.user.AddressResquestDTO;
 import com.BancoMalvader.Java_Api.entities.user.UserType;
 import com.BancoMalvader.Java_Api.entities.user.client.Client;
+import com.BancoMalvader.Java_Api.entities.user.client.ClientRequestDTO;
 import com.BancoMalvader.Java_Api.entities.user.employee.Employee;
 import com.BancoMalvader.Java_Api.entities.user.employee.EmployerRequestDTO;
 import com.BancoMalvader.Java_Api.repositories.*;
 import com.BancoMalvader.Java_Api.schemas.AccountSchema;
-import com.BancoMalvader.Java_Api.schemas.ClientSchema;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -167,26 +166,14 @@ public class EmployeeServices {
         savingRepository.save(saving);
     }
 
-    public void alterClientData(Long clientId, ClientSchema schema) {
-        Optional<Client> optionalClient = clientRepository.findById(clientId);
-        Client client = optionalClient.orElseThrow(() -> new EntityNotFoundException("Cliente com ID " + clientId + " não encontrado."));
-
-        if (schema.getName() != null) client.setName(schema.getName());
-
-        if (schema.getCpf() != null) client.setCPF(schema.getCpf());
-
-        if (schema.getPhone() != null) client.setPhone(schema.getPhone());
-
-        if (schema.getPassword() != null) client.setPassword(schema.getPassword());
-
-        if (schema.getBornDate() != null) client.setBornDate(schema.getBornDate());
-
-        if (schema.getAddress() != null) {
-            Address address = client.getAddress();
-            addressRepository.save(address);
-        }
+    public void alterClientData(Long clientId, AddressResquestDTO dataAddress, ClientRequestDTO dataClient) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente com ID " + clientId + " não encontrado."));
+        client.update(dataClient);
+        client.getAddress().update(dataAddress);
         clientRepository.save(client);
     }
+
 
     public Employee employeeRegisterEmployee(EmployerRequestDTO dataEmployer, AddressResquestDTO dataAddress, Long employeeId, String password) {
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new EntityNotFoundException("Funcionário não encontrado"));
